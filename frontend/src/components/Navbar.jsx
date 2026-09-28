@@ -1,37 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
   const [preferredLang, setPreferredLang] = useState('en');
-
-  const isAuth = localStorage.getItem('formSaathi_auth') === 'true';
 
   useEffect(() => {
     const saved = localStorage.getItem('formSaathiLanguage');
     if (saved) {
       setPreferredLang(saved);
     }
-  }, [location]); // Re-check language when route changes
+  }, [location]);
 
   const getLanguageName = (code) => {
     switch(code) {
       case 'te': return 'తెలుగు';
-      case 'hi': return 'हिन्दी';
+      case 'hi': return 'హిन्दी';
       case 'en': default: return 'English';
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('formSaathi_auth');
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white py-3 shadow-sm sticky-top">
       <div className="container">
-        <Link className="navbar-brand d-flex align-items-center" to={isAuth ? "/dashboard" : "/"}>
+        <Link className="navbar-brand d-flex align-items-center" to={isAuthenticated ? "/dashboard" : "/"}>
           <i className="bi bi-file-earmark-text-fill text-primary-brand me-2 fs-3"></i>
           <span className="fw-bold fs-4 text-primary-brand">Form Saathi</span>
         </Link>
@@ -51,7 +51,7 @@ const Navbar = () => {
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
           <ul className="navbar-nav align-items-center">
             
-            {isAuth ? (
+            {isAuthenticated ? (
               <>
                 <li className="nav-item me-3 mb-2 mb-lg-0">
                   <Link className={`nav-link fw-medium ${location.pathname === '/dashboard' ? 'text-primary-brand' : 'text-dark'}`} to="/dashboard">
@@ -60,7 +60,8 @@ const Navbar = () => {
                 </li>
                 <li className="nav-item me-3 mb-2 mb-lg-0">
                   <Link className={`nav-link fw-medium ${location.pathname === '/profile' ? 'text-primary-brand' : 'text-dark'}`} to="/profile">
-                    Profile
+                    <i className="bi bi-person-circle me-1 text-primary-brand"></i>
+                    {user?.full_name ? user.full_name.split(' ')[0] : 'Profile'}
                   </Link>
                 </li>
                 <li className="nav-item me-3 mb-2 mb-lg-0">
@@ -84,13 +85,15 @@ const Navbar = () => {
                     <i className="bi bi-globe me-1"></i> Language
                   </Link>
                 </li>
+                <li className="nav-item me-2 mb-2 mb-lg-0">
+                  <Link className="btn btn-outline-brand btn-sm px-3 py-2" to="/login">
+                    Login
+                  </Link>
+                </li>
                 <li className="nav-item">
-                  <button
-                    className="btn-primary-brand w-100"
-                    onClick={() => navigate('/language')}
-                  >
-                    Get Started
-                  </button>
+                  <Link className="btn-primary-brand text-decoration-none btn-sm px-3 py-2 d-inline-block" to="/register">
+                    Register
+                  </Link>
                 </li>
               </>
             )}

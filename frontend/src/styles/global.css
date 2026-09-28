@@ -15,6 +15,8 @@ body {
   background-color: var(--bg-color);
   color: var(--text-main);
   font-family: var(--font-family);
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
@@ -31,6 +33,79 @@ body {
   flex: 1;
 }
 
+/* ─────────────────────────────────────────────────────────
+   Typography Standard Scale
+   - Page Headings (h1): 28-32px
+   - Section Headings (h2, h3): 24-28px
+   - Form / Card Titles (h4, h5): 20-22px
+   - Body Text: 16-17px
+   - Secondary / Helper / Small: 14-15px
+   - Buttons: 16px
+───────────────────────────────────────────────────────── */
+
+h1, .h1 {
+  font-size: 30px !important;
+  line-height: 1.3;
+}
+
+h2, .h2 {
+  font-size: 26px !important;
+  line-height: 1.3;
+}
+
+h3, .h3 {
+  font-size: 24px !important;
+  line-height: 1.35;
+}
+
+h4, .h4 {
+  font-size: 22px !important;
+  line-height: 1.4;
+}
+
+h5, .h5 {
+  font-size: 20px !important;
+  line-height: 1.4;
+}
+
+h6, .h6 {
+  font-size: 17px !important;
+  line-height: 1.4;
+}
+
+p {
+  font-size: 16px;
+  margin-bottom: 0.75rem;
+}
+
+.lead {
+  font-size: 17px !important;
+}
+
+small, .small, .text-muted, .text-muted-brand {
+  font-size: 14px !important;
+}
+
+.fs-5 {
+  font-size: 17px !important;
+}
+
+.fs-4 {
+  font-size: 20px !important;
+}
+
+.fs-3 {
+  font-size: 24px !important;
+}
+
+.fs-2 {
+  font-size: 28px !important;
+}
+
+.fs-1 {
+  font-size: 32px !important;
+}
+
 /* Utilities */
 .text-primary-brand { color: var(--primary-color) !important; }
 .bg-primary-brand { background-color: var(--primary-color) !important; color: white; }
@@ -42,8 +117,9 @@ body {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  padding: 0.6rem 1.5rem;
+  padding: 0.5rem 1.25rem;
   border-radius: 8px;
+  font-size: 16px;
   font-weight: 500;
   transition: background-color 0.2s ease;
 }
@@ -56,9 +132,10 @@ body {
 .btn-outline-brand {
   background-color: transparent;
   color: var(--primary-color);
-  border: 2px solid var(--primary-color);
-  padding: 0.5rem 1.4rem;
+  border: 1.5px solid var(--primary-color);
+  padding: 0.45rem 1.2rem;
   border-radius: 8px;
+  font-size: 16px;
   font-weight: 500;
   transition: all 0.2s ease;
 }
@@ -68,14 +145,24 @@ body {
   color: var(--primary-color);
 }
 
-/* Sections */
+.btn-sm {
+  font-size: 14px !important;
+  padding: 0.35rem 0.85rem !important;
+}
+
+/* Form inputs */
+.form-control, .form-select, .input-group-text {
+  font-size: 16px !important;
+}
+
+/* Layout Padding Fixes */
 .hero-section {
-  padding: 5rem 0;
+  padding: 3rem 0;
   background-color: white;
 }
 
 .section-padding {
-  padding: 4rem 0;
+  padding: 2.5rem 0;
 }
 
 /* Cards */
@@ -89,27 +176,27 @@ body {
 }
 
 .feature-card:hover, .language-card.selectable:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.04);
 }
 
 .step-card {
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 .step-number {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 800;
   color: var(--secondary-color);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 /* Language Cards */
 .language-card {
   cursor: pointer;
   border: 2px solid transparent;
-  padding: 1.5rem;
+  padding: 1.25rem;
   text-align: center;
 }
 
@@ -120,25 +207,25 @@ body {
 
 /* Icons */
 .icon-wrapper {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background-color: var(--secondary-color);
   color: var(--primary-color);
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
 }
 
 /* Trust Section */
 .trust-section {
   background-color: var(--primary-color);
   color: white;
-  padding: 3rem 0;
+  padding: 2.5rem 0;
   text-align: center;
 }
 
 .hover-lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; }
+.hover-lift:hover { transform: translateY(-3px); box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.04) !important; }

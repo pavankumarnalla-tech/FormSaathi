@@ -105,7 +105,9 @@ const UploadForm = () => {
       }
     } catch (err) {
       setIsAnalyzing(false);
-      setError("Unable to analyze this form. AI analysis may be temporarily unavailable or the backend is offline. Please try again.");
+      // Show the exact backend error detail if available, otherwise a clear fallback
+      const backendDetail = err.response?.data?.detail;
+      setError(backendDetail || "Unable to analyze this form. The backend may be offline. Please try again.");
       console.error(err);
     }
   };
@@ -135,9 +137,19 @@ const UploadForm = () => {
         <div className="col-lg-8">
           
           {error && (
-            <div className="alert alert-danger d-flex align-items-center mb-4 border-0 rounded-4 shadow-sm" role="alert">
-              <i className="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
-              <div>{error}</div>
+            <div className="alert alert-danger d-flex align-items-start mb-4 border-0 rounded-4 shadow-sm" role="alert">
+              <i className="bi bi-exclamation-triangle-fill fs-4 me-3 mt-1"></i>
+              <div className="flex-grow-1">
+                <div className="mb-2">{error}</div>
+                {file && (
+                  <button
+                    className="btn btn-sm btn-outline-danger rounded-pill"
+                    onClick={() => { setError(null); handleAnalyze(); }}
+                  >
+                    <i className="bi bi-arrow-clockwise me-1"></i>Retry
+                  </button>
+                )}
+              </div>
             </div>
           )}
 

@@ -1,45 +1,41 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
     // Basic Validation
     if (!identifier.trim()) {
-      setError('Please enter your email or mobile number.');
+      setError('Please enter your email address.');
       return;
     }
     
-    // Check if looks like mobile (digits only) or email (contains @)
-    const isMobile = /^\d+$/.test(identifier.trim());
-    if (isMobile && identifier.trim().length < 10) {
-      setError('Please enter a valid mobile number.');
-      return;
-    } else if (!isMobile && !identifier.includes('@')) {
-      setError('Please enter a valid email or mobile number.');
-      return;
-    }
-
     if (!password) {
       setError('Please enter your password.');
       return;
     }
 
-    // Demo Login Process
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      localStorage.setItem('formSaathi_auth', 'true');
+
+    const result = await login(identifier, password);
+    setIsLoading(false);
+
+    if (result.success) {
       navigate('/dashboard');
-    }, 1000);
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
@@ -54,7 +50,7 @@ const Login = () => {
             </div>
 
             {error && (
-              <div className="alert alert-danger py-2 border-0 rounded-3 small">
+              <div className="alert alert-danger py-2 border-0 rounded-3 small mb-4">
                 <i className="bi bi-exclamation-circle-fill me-2"></i>
                 {error}
               </div>
@@ -62,13 +58,14 @@ const Login = () => {
 
             <form onSubmit={handleLogin}>
               <div className="mb-4">
-                <label className="form-label text-muted-brand small fw-bold">Mobile or Email</label>
+                <label className="form-label text-muted-brand small fw-bold">Email Address</label>
                 <input 
-                  type="text" 
+                  type="email" 
                   className="form-control form-control-lg bg-light border-0" 
-                  placeholder="Enter your mobile or email"
+                  placeholder="Enter your registered email"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
+                  required
                 />
               </div>
 
@@ -81,23 +78,18 @@ const Login = () => {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    required
                   />
-                  <span className="input-group-text bg-light border-0 text-muted">
-                    <i className="bi bi-eye"></i>
-                  </span>
                 </div>
               </div>
 
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" id="rememberMe" />
+                  <input className="form-check-input" type="checkbox" id="rememberMe" defaultChecked />
                   <label className="form-check-label small text-muted-brand" htmlFor="rememberMe">
                     Remember me
                   </label>
                 </div>
-                <Link to="#" className="small text-primary-brand text-decoration-none fw-medium">
-                  Forgot Password?
-                </Link>
               </div>
 
               <button 
@@ -118,21 +110,9 @@ const Login = () => {
 
             <div className="text-center mt-3 border-top pt-4">
               <p className="text-muted-brand small mb-2">Don't have an account?</p>
-              <Link to="#" className="btn-outline-brand px-4 py-2 w-100 d-inline-block text-decoration-none">
+              <Link to="/register" className="btn-outline-brand px-4 py-2 w-100 d-inline-block text-decoration-none">
                 Create Account
               </Link>
-            </div>
-            
-            <div className="text-center mt-4">
-              <button 
-                className="btn btn-link text-muted small text-decoration-none"
-                onClick={() => {
-                  localStorage.setItem('formSaathi_auth', 'true');
-                  navigate('/dashboard');
-                }}
-              >
-                Continue as Guest
-              </button>
             </div>
           </div>
         </div>

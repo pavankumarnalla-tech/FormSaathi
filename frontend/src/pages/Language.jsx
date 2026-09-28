@@ -31,34 +31,34 @@ const Language = () => {
   };
 
   return (
-    <div className="container section-padding">
+    <div className="container py-4">
       <div className="row justify-content-center">
-        <div className="col-md-8 col-lg-6">
-          <div className="text-center mb-5">
-            <i className="bi bi-globe fs-1 text-primary-brand mb-3 d-inline-block"></i>
-            <h2 className="fw-bold mb-3">Choose your language</h2>
-            <p className="text-muted-brand fs-5">
+        <div className="col-md-8 col-lg-5">
+          <div className="text-center mb-4">
+            <i className="bi bi-globe fs-3 text-primary-brand mb-2 d-inline-block"></i>
+            <h2 className="fw-bold mb-2">Choose your language</h2>
+            <p className="text-muted-brand mb-0">
               Select the language you are most comfortable with.
             </p>
           </div>
 
-          <div className="d-flex flex-column gap-3 mb-5">
+          <div className="d-flex flex-column gap-3 mb-4">
             {languages.map((lang) => (
               <div 
                 key={lang.code}
-                className={`language-card selectable rounded-4 ${selectedLang === lang.code ? 'selected' : 'border'}`}
+                className={`language-card selectable rounded-4 p-3 ${selectedLang === lang.code ? 'selected' : 'border bg-white'}`}
                 onClick={() => handleSelect(lang.code)}
               >
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
-                    <h4 className="fw-bold mb-1 text-dark">{lang.nativeName}</h4>
+                    <h5 className="fw-bold mb-0 text-dark">{lang.nativeName}</h5>
                     <span className="text-muted small">{lang.name}</span>
                   </div>
                   {selectedLang === lang.code && (
-                    <i className="bi bi-check-circle-fill fs-3 text-primary-brand"></i>
+                    <i className="bi bi-check-circle-fill fs-5 text-primary-brand"></i>
                   )}
                   {selectedLang !== lang.code && (
-                    <i className="bi bi-circle fs-3 text-muted opacity-25"></i>
+                    <i className="bi bi-circle fs-5 text-muted opacity-25"></i>
                   )}
                 </div>
               </div>
@@ -67,12 +67,12 @@ const Language = () => {
 
           <div className="text-center">
             <button 
-              className="btn-primary-brand fs-5 px-5 py-3 w-100 rounded-pill"
+              className="btn-primary-brand w-100 rounded-pill py-2.5"
               onClick={handleContinue}
               disabled={!selectedLang}
               style={{ opacity: !selectedLang ? 0.6 : 1 }}
             >
-              Continue
+              Continue <i className="bi bi-arrow-right ms-1"></i>
             </button>
           </div>
         </div>
