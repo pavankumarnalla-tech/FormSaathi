@@ -22,11 +22,9 @@ const Dashboard = () => {
       <div className="row g-4 mb-5">
         <div className="col-md-6">
           <div 
-            className="card border-0 rounded-4 shadow-sm h-100 p-4" 
-            style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+            className="card border-0 rounded-4 shadow-sm h-100 p-4 transition-transform hover-lift" 
+            style={{ cursor: 'pointer' }}
             onClick={() => navigate('/find-form')}
-            onMouseOver={(e) => e.currentTarget.classList.add('shadow')}
-            onMouseOut={(e) => e.currentTarget.classList.remove('shadow')}
           >
             <div className="icon-wrapper mb-3" style={{ width: '56px', height: '56px' }}>
               <i className="bi bi-search fs-3"></i>
@@ -45,11 +43,9 @@ const Dashboard = () => {
 
         <div className="col-md-6">
           <div 
-            className="card border-0 rounded-4 shadow-sm h-100 p-4 bg-primary-brand text-white" 
-            style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+            className="card border-0 rounded-4 shadow-sm h-100 p-4 bg-primary-brand text-white transition-transform hover-lift" 
+            style={{ cursor: 'pointer' }}
             onClick={() => navigate('/upload-form')}
-            onMouseOver={(e) => e.currentTarget.classList.add('shadow')}
-            onMouseOut={(e) => e.currentTarget.classList.remove('shadow')}
           >
             <div className="bg-white text-primary-brand rounded-3 d-flex align-items-center justify-content-center mb-3" style={{ width: '56px', height: '56px' }}>
               <i className="bi bi-upload fs-3"></i>
@@ -133,15 +129,15 @@ const Dashboard = () => {
           {/* Quick Links */}
           <h5 className="fw-bold mb-3 mt-5">Quick Access</h5>
           <div className="d-flex flex-column gap-2">
-            <Link to="/find-form" className="text-decoration-none p-3 rounded-3 bg-white shadow-sm text-dark d-flex justify-content-between align-items-center">
+            <Link to="/my-forms" className="text-decoration-none p-3 rounded-3 bg-white shadow-sm text-dark d-flex justify-content-between align-items-center hover-lift" style={{ transition: 'all 0.2s' }}>
               <span><i className="bi bi-file-earmark-text text-primary-brand me-2"></i> My Forms</span>
               <i className="bi bi-chevron-right text-muted small"></i>
             </Link>
-            <Link to="/upload-form" className="text-decoration-none p-3 rounded-3 bg-white shadow-sm text-dark d-flex justify-content-between align-items-center">
+            <Link to="/documents" className="text-decoration-none p-3 rounded-3 bg-white shadow-sm text-dark d-flex justify-content-between align-items-center hover-lift" style={{ transition: 'all 0.2s' }}>
               <span><i className="bi bi-folder text-primary-brand me-2"></i> Documents</span>
               <i className="bi bi-chevron-right text-muted small"></i>
             </Link>
-            <Link to="/profile" className="text-decoration-none p-3 rounded-3 bg-white shadow-sm text-dark d-flex justify-content-between align-items-center">
+            <Link to="/help" className="text-decoration-none p-3 rounded-3 bg-white shadow-sm text-dark d-flex justify-content-between align-items-center hover-lift" style={{ transition: 'all 0.2s' }}>
               <span><i className="bi bi-question-circle text-primary-brand me-2"></i> Help</span>
               <i className="bi bi-chevron-right text-muted small"></i>
             </Link>

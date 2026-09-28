@@ -9,6 +9,9 @@ import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import FindForm from './pages/FindForm'
 import FormInformation from './pages/FormInformation'
+import UploadForm from './pages/UploadForm'
+import FormAnalysis from './pages/FormAnalysis'
+import DocumentsPlaceholder from './pages/DocumentsPlaceholder'
 import NotFound from './pages/NotFound'
 import PlaceholderPage from './components/PlaceholderPage'
 
@@ -32,6 +35,11 @@ function App() {
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           
+          {/* Dashboard Quick Access */}
+          <Route path="/my-forms" element={<ProtectedRoute><PlaceholderPage title="My Forms" stepNumber="6" /></ProtectedRoute>} />
+          <Route path="/documents" element={<ProtectedRoute><DocumentsPlaceholder /></ProtectedRoute>} />
+          <Route path="/help" element={<ProtectedRoute><PlaceholderPage title="Help & Support" stepNumber="7" /></ProtectedRoute>} />
+
           {/* Find Form Routes */}
           <Route path="/find-form" element={<ProtectedRoute><FindForm /></ProtectedRoute>} />
           <Route path="/form/:id" element={<ProtectedRoute><FormInformation /></ProtectedRoute>} />
@@ -52,16 +60,19 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          
-          {/* Upload and AI Saathi Placeholders */}
           <Route 
-            path="/upload-form" 
+            path="/form/demo/fill" 
             element={
               <ProtectedRoute>
-                <PlaceholderPage title="Upload a Form" stepNumber="5" />
+                <PlaceholderPage title="Form Saathi Filling" stepNumber="6" />
               </ProtectedRoute>
             } 
           />
+          
+          {/* Upload and Form Analysis Routes */}
+          <Route path="/upload-form" element={<ProtectedRoute><UploadForm /></ProtectedRoute>} />
+          <Route path="/form-analysis" element={<ProtectedRoute><FormAnalysis /></ProtectedRoute>} />
+
           <Route 
             path="/ai-saathi" 
             element={
