@@ -13,8 +13,12 @@ import FormFill from './pages/FormFill'
 import UploadForm from './pages/UploadForm'
 import FormAnalysis from './pages/FormAnalysis'
 import DocumentsPlaceholder from './pages/DocumentsPlaceholder'
-import ValidationPlaceholder from './pages/ValidationPlaceholder'
+import ValidationPage from './pages/ValidationPage'
+import ReviewPage from './pages/ReviewPage'
+import FormComplete from './pages/FormComplete'
 import NotFound from './pages/NotFound'
+import MyFormsPage from './pages/MyFormsPage'
+import HelpPage from './pages/HelpPage'
 import PlaceholderPage from './components/PlaceholderPage'
 
 const ProtectedRoute = ({ children }) => {
@@ -22,45 +26,54 @@ const ProtectedRoute = ({ children }) => {
   return isAuth ? children : <Navigate to="/login" replace />;
 };
 
+const P = ({ children }) => <ProtectedRoute>{children}</ProtectedRoute>;
+
 function App() {
   return (
     <>
       <Navbar />
       <main className="main-content">
         <Routes>
-          {/* Public */}
-          <Route path="/" element={<Welcome />} />
+          {/* ── Public ── */}
+          <Route path="/"         element={<Welcome />} />
           <Route path="/language" element={<Language />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login"    element={<Login />} />
 
-          {/* Core protected */}
-          <Route path="/dashboard"  element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/profile"    element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          {/* ── Core ── */}
+          <Route path="/dashboard" element={<P><Dashboard /></P>} />
+          <Route path="/profile"   element={<P><Profile /></P>} />
 
-          {/* Quick Access */}
-          <Route path="/my-forms"   element={<ProtectedRoute><PlaceholderPage title="My Forms" stepNumber="8" /></ProtectedRoute>} />
-          <Route path="/documents"  element={<ProtectedRoute><DocumentsPlaceholder /></ProtectedRoute>} />
-          <Route path="/help"       element={<ProtectedRoute><PlaceholderPage title="Help & Support" stepNumber="9" /></ProtectedRoute>} />
-          <Route path="/ai-saathi"  element={<ProtectedRoute><PlaceholderPage title="AI Saathi" stepNumber="7" /></ProtectedRoute>} />
+          {/* ── Quick Access ── */}
+          <Route path="/my-forms"  element={<P><MyFormsPage /></P>} />
+          <Route path="/documents" element={<P><DocumentsPlaceholder /></P>} />
+          <Route path="/help"      element={<P><HelpPage /></P>} />
+          <Route path="/ai-saathi" element={<P><PlaceholderPage title="AI Saathi" stepNumber="7" /></P>} />
 
-          {/* Find Form flow */}
-          <Route path="/find-form"  element={<ProtectedRoute><FindForm /></ProtectedRoute>} />
-          <Route path="/form/:id"   element={<ProtectedRoute><FormInformation /></ProtectedRoute>} />
+          {/* ── Find Form flow ── */}
+          <Route path="/find-form" element={<P><FindForm /></P>} />
+          <Route path="/form/:id"  element={<P><FormInformation /></P>} />
 
-          {/* Step 6+7 — Form Filling (Find Form flow):  /form/:id/fill */}
-          <Route path="/form/:id/fill"        element={<ProtectedRoute><FormFill /></ProtectedRoute>} />
-          {/* Step 6+7 — Form Filling (Upload flow): /form/upload/fill */}
-          <Route path="/form/upload/fill"     element={<ProtectedRoute><FormFill /></ProtectedRoute>} />
-          {/* Step 8 placeholder */}
-          <Route path="/form/:id/validation"  element={<ProtectedRoute><ValidationPlaceholder /></ProtectedRoute>} />
-          {/* AI explanation placeholder (Step 7+) */}
-          <Route path="/form/:id/explanation" element={<ProtectedRoute><PlaceholderPage title="AI Form Explanation" stepNumber="7" /></ProtectedRoute>} />
+          {/*
+            IMPORTANT: Static "upload" segment routes must come BEFORE :id routes.
+            React Router matches top-down; /form/upload/fill would match /form/:id otherwise.
+          */}
 
-          {/* Upload Form flow */}
-          <Route path="/upload-form"          element={<ProtectedRoute><UploadForm /></ProtectedRoute>} />
-          <Route path="/form-analysis"        element={<ProtectedRoute><FormAnalysis /></ProtectedRoute>} />
+          {/* ── Upload flow ── */}
+          <Route path="/upload-form"       element={<P><UploadForm /></P>} />
+          <Route path="/form-analysis"     element={<P><FormAnalysis /></P>} />
+          <Route path="/form/upload/fill"       element={<P><FormFill /></P>} />
+          <Route path="/form/upload/validation" element={<P><ValidationPage /></P>} />
+          <Route path="/form/upload/review"     element={<P><ReviewPage /></P>} />
+          <Route path="/form/upload/complete"   element={<P><FormComplete /></P>} />
 
-          {/* 404 */}
+          {/* ── Find Form filling flow ── */}
+          <Route path="/form/:id/fill"        element={<P><FormFill /></P>} />
+          <Route path="/form/:id/validation"  element={<P><ValidationPage /></P>} />
+          <Route path="/form/:id/review"      element={<P><ReviewPage /></P>} />
+          <Route path="/form/:id/complete"    element={<P><FormComplete /></P>} />
+          <Route path="/form/:id/explanation" element={<P><PlaceholderPage title="AI Form Explanation" stepNumber="7" /></P>} />
+
+          {/* ── 404 ── */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

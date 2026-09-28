@@ -40,8 +40,12 @@ const FormFill = () => {
 
   // ── Resolve source ──────────────────────────────────────
   // source = 'find' (Find a Form flow) or 'upload' (Upload flow via FormAnalysis)
-  const analysisData = location.state?.analysisData || null; // passed from FormAnalysis
-  const isUploadFlow = !!analysisData;
+  const analysisData  = location.state?.analysisData || null;
+  const isUploadFlow  = !!analysisData;
+  // startSection allows Review/Validation to navigate directly to a specific section
+  const startSection  = location.state?.startSection ?? 0;
+  // Carry over already-entered values if navigating back from Review/Validation
+  const incomingValues = location.state?.formValues || null;
 
   // Resolve form meta
   const formMeta = isUploadFlow
@@ -54,9 +58,11 @@ const FormFill = () => {
     : (formFillDefinitions[parseInt(id, 10)]?.sections || defaultSections(formMeta?.name));
 
   // ── State ───────────────────────────────────────────────
-  const [currentSectionIdx, setCurrentSectionIdx] = useState(0);
+  const [currentSectionIdx, setCurrentSectionIdx] = useState(startSection);
   const [formValues, setFormValues] = useState(() => {
-    // Initialise: prefill detected values from upload flow
+    // If returning from review/validation, use the carried values
+    if (incomingValues && Object.keys(incomingValues).length > 0) return incomingValues;
+    // Otherwise initialise from prefill (upload flow) or empty
     const init = {};
     rawSections.forEach((section) => {
       section.fields.forEach((f) => {
@@ -75,7 +81,7 @@ const FormFill = () => {
     return init;
   });
   const [fieldErrors, setFieldErrors] = useState({});
-  const [aiField, setAiField] = useState(null); // field object currently receiving AI help
+  const [aiField, setAiField] = useState(null);
   const language = localStorage.getItem('formSaathiLanguage') || 'English';
 
   // ── If form not found (find-form flow with bad id) ──────
@@ -112,6 +118,26 @@ const FormFill = () => {
       return;
     }
     setFieldErrors({});
+
+    // Save in progress to local storage
+    try {
+      const stored = localStorage.getItem('formSaathi_myForms');
+      let myForms = stored ? JSON.parse(stored) : [];
+      const newForm = {
+        id: id || 'upload',
+        name: formMeta.name || 'Form',
+        status: 'In Progress',
+        updatedAt: new Date().toISOString(),
+        values: formValues,
+        analysisData: analysisData
+      };
+      myForms = myForms.filter(f => f.id !== newForm.id);
+      myForms.unshift(newForm);
+      localStorage.setItem('formSaathi_myForms', JSON.stringify(myForms));
+    } catch(e) {
+      console.error(e);
+    }
+
     if (isLastSection) {
       navigate(`/form/${id || 'upload'}/validation`, { state: { formValues, formMeta, analysisData } });
     } else {
