@@ -109,7 +109,7 @@ const FormInformation = () => {
               className="btn-primary-brand w-100 py-3 mb-3 fw-bold shadow-sm"
               onClick={() => navigate(`/form/${form.id}/fill`)}
             >
-              Start Filling
+              <i className="bi bi-pencil-square me-2"></i>Start Filling
             </button>
             <button 
               className="btn-outline-brand w-100 py-3 fw-bold"
