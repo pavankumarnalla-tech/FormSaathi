@@ -4,6 +4,7 @@ from services.ai_service import get_field_assistance
 
 router = APIRouter()
 
+
 class AssistRequest(BaseModel):
     formName: str = ""
     sectionName: str = ""
@@ -12,10 +13,11 @@ class AssistRequest(BaseModel):
     question: str
     language: str = "English"
 
+
 @router.post("/assist")
 async def assist(req: AssistRequest):
     """
-    Provides real contextual AI assistance for a specific form field using OpenAI API.
+    Provides real contextual AI assistance for a form field using Gemini API.
     """
     try:
         answer, is_demo = get_field_assistance(
@@ -24,15 +26,21 @@ async def assist(req: AssistRequest):
             field_name=req.fieldName,
             field_description=req.fieldDescription,
             question=req.question,
-            language=req.language
+            language=req.language,
         )
         return {
             "success": True,
             "answer": answer,
-            "isDemoMode": False
+            "isDemoMode": False,
         }
+    except ValueError as e:
+        # Pass the descriptive error message straight to the frontend
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e),
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e) if "temporarily unavailable" in str(e) else "AI assistance is temporarily unavailable. Please try again."
+            detail=f"Unexpected server error: {str(e)}",
         )

@@ -1,148 +1,293 @@
+"""
+ai_service.py — Form Saathi AI Service
+Uses Google Gemini API (google-genai SDK) for:
+  1. get_field_assistance()  — contextual form field help (AI Saathi)
+  2. analyze_form()          — document understanding + structured JSON extraction
+"""
+
 import os
 import json
 from dotenv import load_dotenv
-from services.ocr_service import extract_text_from_file
 
 load_dotenv()
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("AI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+GEMINI_MODEL   = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite").strip()
 
-client = None
-if OPENAI_API_KEY and not OPENAI_API_KEY.startswith("your_"):
-    try:
-        from openai import OpenAI
-        client = OpenAI(api_key=OPENAI_API_KEY)
-    except Exception as e:
-        print(f"Warning: Failed to initialize OpenAI client: {e}")
+# ── Validate key at startup ──────────────────────────────────────────────────
+if not GEMINI_API_KEY:
+    print("WARNING: GEMINI_API_KEY is not set. AI features will be unavailable.")
+
+# ── Initialise Gemini client ─────────────────────────────────────────────────
+try:
+    from google import genai
+    _client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+except Exception as _e:
+    print(f"WARNING: Failed to initialise Gemini client: {_e}")
+    _client = None
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+def _require_client():
+    """Raise a clear error if Gemini is not configured."""
+    if not GEMINI_API_KEY:
+        raise ValueError(
+            "GEMINI_API_KEY is not configured. "
+            "Add it to backend/.env and restart the server."
+        )
+    if _client is None:
+        raise ValueError(
+            "Gemini client failed to initialise. "
+            "Check that google-genai is installed and GEMINI_API_KEY is valid."
+        )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 def get_field_assistance(
     form_name: str,
     section_name: str,
     field_name: str,
     field_description: str,
     question: str,
-    language: str = "English"
+    language: str = "English",
 ) -> tuple:
     """
-    Calls OpenAI API to generate real contextual form assistance.
-    Returns (answer: str, is_demo: bool = False).
+    Calls Gemini to answer a citizen's contextual question about a form field.
+    Returns (answer: str, is_demo: bool).
+    Raises ValueError with a descriptive message on any failure.
     """
-    if not client:
-        raise ValueError("AI assistance is temporarily unavailable. (API key unconfigured)")
+    _require_client()
 
-    system_prompt = (
-        "You are 'AI Saathi', an expert citizen assistance assistant designed to simplify "
-        "complex government and official forms in India. Your responses must be clear, concise, accurate, "
-        "and easy to understand. Never invent false legal requirements. Always answer in the user's requested language."
-    )
+    prompt = f"""You are 'AI Saathi', a helpful citizen assistance assistant for official Indian government forms.
+Your job is to help citizens understand and fill their forms correctly.
+Always answer clearly, accurately, and in simple language.
+Never invent legal requirements or document names.
+Always answer strictly in the language requested.
 
-    user_prompt = f"""
 Context:
-- Form Name: {form_name or 'Official Application'}
-- Section: {section_name or 'General'}
-- Field Name: {field_name or 'Selected Field'}
-- Field Description: {field_description or 'N/A'}
-- User's Preferred Language: {language}
+- Form Name      : {form_name or 'Official Application'}
+- Section        : {section_name or 'General'}
+- Field Name     : {field_name or 'Selected Field'}
+- Field Details  : {field_description or 'N/A'}
+- Reply Language : {language}
 
-User's Question: "{question}"
+Citizen's Question: "{question}"
 
 Instructions:
 1. Explain what this field means and what the citizen should enter.
-2. If applicable, mention where to find this information or document.
-3. Keep the response to 2 to 4 simple, conversational sentences.
-4. Answer strictly in {language}.
+2. If relevant, mention where to obtain the information or document.
+3. Keep the response to 2–4 clear, conversational sentences.
+4. Respond entirely in {language}.
 """
 
     try:
-        response = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.3,
-            max_tokens=350
+        response = _client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=prompt,
         )
-        answer = response.choices[0].message.content.strip()
+        answer = response.text.strip()
+        if not answer:
+            raise ValueError("Gemini returned an empty response.")
         return answer, False
+
+    except ValueError:
+        raise
     except Exception as e:
-        print(f"OpenAI API Error in get_field_assistance: {e}")
-        raise ValueError("AI assistance is temporarily unavailable. Please try again.")
+        err_str = str(e)
+        print(f"Gemini API error in get_field_assistance: {err_str}")
+
+        # Surface quota / rate-limit errors clearly
+        if "quota" in err_str.lower() or "429" in err_str or "rate" in err_str.lower():
+            raise ValueError(
+                "Gemini API rate limit or quota exceeded. "
+                "Please wait a moment and try again."
+            )
+        if "api_key" in err_str.lower() or "invalid" in err_str.lower() or "401" in err_str:
+            raise ValueError(
+                "Gemini API key is invalid or expired. "
+                "Check GEMINI_API_KEY in backend/.env."
+            )
+        raise ValueError(
+            f"AI assistance is currently unavailable. "
+            f"Gemini API error: {err_str}"
+        )
 
 
+# ─────────────────────────────────────────────────────────────────────────────
 def analyze_form(file_path: str, filename: str, content_type: str) -> dict:
     """
-    Real pipeline: Google Cloud Vision OCR -> OpenAI Form Analysis -> Structured JSON.
+    Sends the uploaded document (PDF or image) directly to Gemini for
+    native document/image understanding + structured JSON extraction.
+    Returns the parsed JSON dict.
+    Raises ValueError with a descriptive message on any failure.
     """
-    if not client:
-        raise ValueError("Form analysis could not be completed. (AI service unconfigured)")
+    _require_client()
 
-    # Step 1: Perform Google Cloud Vision OCR Text Extraction
-    ocr_text = ""
+    # ── Determine MIME type ──────────────────────────────────────────────────
+    mime_map = {
+        "application/pdf": "application/pdf",
+        "image/jpeg":      "image/jpeg",
+        "image/jpg":       "image/jpeg",
+        "image/png":       "image/png",
+    }
+    mime_type = mime_map.get(content_type)
+    if not mime_type:
+        # Fallback: derive from extension
+        ext = os.path.splitext(filename)[1].lower()
+        ext_map = {".pdf": "application/pdf", ".jpg": "image/jpeg",
+                   ".jpeg": "image/jpeg", ".png": "image/png"}
+        mime_type = ext_map.get(ext)
+    if not mime_type:
+        raise ValueError(
+            f"Unsupported file type '{content_type}'. "
+            "Please upload a PDF, JPG, or PNG."
+        )
+
+    # ── Read file bytes ──────────────────────────────────────────────────────
     try:
-        ocr_text = extract_text_from_file(file_path, content_type)
+        with open(file_path, "rb") as f:
+            file_bytes = f.read()
     except Exception as e:
-        print(f"OCR Extraction Exception: {e}")
+        raise ValueError(f"Failed to read uploaded file: {e}")
 
-    # Step 2: Use OpenAI to structure the extracted form content into sections & fields
-    system_prompt = "You are an expert OCR & Document Analysis AI for Indian government forms."
-    user_prompt = f"""
-Uploaded Document Filename: '{filename}'
-Extracted OCR Text Content:
-\"\"\"
-{ocr_text if ocr_text else 'No OCR text extracted directly. Infer standard fields based on form title.'}
-\"\"\"
+    if len(file_bytes) == 0:
+        raise ValueError("The uploaded file is empty.")
 
-Analyze the extracted form text above.
-Identify all sections and fields, determine field types (text, date, number, radio, tel, file), 
-determine if required, and extract any pre-filled values visible in the OCR text.
+    # ── Build Gemini inline-data part ────────────────────────────────────────
+    try:
+        from google.genai import types as genai_types
+        document_part = genai_types.Part.from_bytes(
+            data=file_bytes,
+            mime_type=mime_type,
+        )
+    except Exception as e:
+        raise ValueError(f"Failed to prepare document for Gemini: {e}")
 
-Return response strictly as a JSON object matching this schema:
+    # ── System instruction ───────────────────────────────────────────────────
+    system_instruction = (
+        "You are an expert document analysis AI specialised in Indian government "
+        "forms, application forms, and official documents. "
+        "You analyse uploaded forms and extract all fields, sections, and values "
+        "as structured JSON. You never invent field names or values — only extract "
+        "what is actually present in the document."
+    )
+
+    # ── User prompt ──────────────────────────────────────────────────────────
+    analysis_prompt = f"""Analyse the uploaded form document (filename: '{filename}').
+
+Carefully examine:
+- The form title and type
+- All sections and sub-sections
+- Every field label, type, and any pre-filled value
+- Checkboxes and their checked/unchecked state
+- Radio buttons and selected option
+- Dates, signatures, tables
+- Required vs optional field indicators
+- Any supporting document requirements
+- Any instructions printed on the form
+
+Return ONLY a valid JSON object matching this exact schema — no markdown, no explanation, only raw JSON:
+
 {{
   "formSummary": {{
-    "name": "Detected Form Name",
-    "confidence": "High (94%)",
-    "totalFields": 10,
-    "completedFields": 3,
-    "emptyFields": 7,
-    "needsReview": 1
+    "name": "Detected form title",
+    "confidence": "High (95%)",
+    "totalFields": 0,
+    "completedFields": 0,
+    "emptyFields": 0,
+    "needsReview": 0
   }},
   "sections": [
     {{
-      "name": "Personal Information",
+      "name": "Section Name",
       "fields": [
         {{
-          "name": "Full Name",
-          "label": "Applicant Name",
-          "type": "text",
+          "name": "Field Name",
+          "label": "Field Label as printed",
+          "type": "text|number|date|email|phone|address|select|radio|checkbox|textarea|signature|file|unknown",
           "required": true,
-          "value": "Extracted name or empty string",
-          "status": "found or empty or review",
-          "help": "Help text for this field"
+          "value": "extracted value or empty string",
+          "status": "found|empty|review",
+          "help": "Brief description of what this field is for"
         }}
       ]
     }}
   ]
 }}
-Do NOT include markdown formatting or markdown codeblocks, return ONLY the raw JSON string.
+
+Rules:
+- status must be "found" if a value exists, "empty" if blank, "review" if unclear or partially filled.
+- Do not invent field names. Only include fields visible in the document.
+- totalFields must equal the sum of all fields across all sections.
+- completedFields = number of "found" fields.
+- emptyFields = number of "empty" fields.
+- needsReview = number of "review" fields.
+- Return ONLY the raw JSON string. No code blocks, no markdown.
 """
 
+    # ── Call Gemini ──────────────────────────────────────────────────────────
     try:
-        response = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+        from google.genai import types as genai_types
+        response = _client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=[
+                genai_types.Content(
+                    role="user",
+                    parts=[
+                        genai_types.Part.from_text(text=analysis_prompt),
+                        document_part,
+                    ],
+                )
             ],
-            response_format={"type": "json_object"},
-            temperature=0.2
+            config=genai_types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=0.1,
+            ),
         )
-        raw_json = response.choices[0].message.content.strip()
-        result = json.loads(raw_json)
-        result["isDemoMode"] = False
-        return result
     except Exception as e:
-        print(f"OpenAI Form Analysis Error: {e}")
-        raise ValueError("Form analysis could not be completed. Please try again.")
+        err_str = str(e)
+        print(f"Gemini API error in analyze_form: {err_str}")
+        if "quota" in err_str.lower() or "429" in err_str or "rate" in err_str.lower():
+            raise ValueError(
+                "Gemini API rate limit or quota exceeded. Please try again shortly."
+            )
+        if "api_key" in err_str.lower() or "invalid" in err_str.lower() or "401" in err_str:
+            raise ValueError(
+                "Gemini API key is invalid or expired. Check GEMINI_API_KEY in backend/.env."
+            )
+        raise ValueError(f"Gemini API request failed: {err_str}")
+
+    # ── Parse JSON response ──────────────────────────────────────────────────
+    raw_text = response.text.strip() if response.text else ""
+    if not raw_text:
+        raise ValueError(
+            "Gemini returned an empty response for form analysis. "
+            "The document may be unreadable or corrupt."
+        )
+
+    # Strip accidental markdown fences (safety net)
+    if raw_text.startswith("```"):
+        lines = raw_text.splitlines()
+        raw_text = "\n".join(
+            line for line in lines
+            if not line.strip().startswith("```")
+        ).strip()
+
+    try:
+        result = json.loads(raw_text)
+    except json.JSONDecodeError as e:
+        print(f"JSON parse error. Raw Gemini response (first 500 chars): {raw_text[:500]}")
+        raise ValueError(
+            f"Gemini returned a response that could not be parsed as JSON. "
+            f"Parse error: {e}"
+        )
+
+    # ── Validate minimum schema ──────────────────────────────────────────────
+    if "formSummary" not in result or "sections" not in result:
+        raise ValueError(
+            "Gemini response is missing required fields ('formSummary' or 'sections'). "
+            "The document may not be a recognisable form."
+        )
+
+    result["isDemoMode"] = False
+    return result
