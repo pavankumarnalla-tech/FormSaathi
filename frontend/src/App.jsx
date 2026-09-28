@@ -7,6 +7,8 @@ import Language from './pages/Language'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
+import FindForm from './pages/FindForm'
+import FormInformation from './pages/FormInformation'
 import NotFound from './pages/NotFound'
 import PlaceholderPage from './components/PlaceholderPage'
 
@@ -30,15 +32,28 @@ function App() {
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           
-          {/* Placeholder Routes */}
+          {/* Find Form Routes */}
+          <Route path="/find-form" element={<ProtectedRoute><FindForm /></ProtectedRoute>} />
+          <Route path="/form/:id" element={<ProtectedRoute><FormInformation /></ProtectedRoute>} />
+          
           <Route 
-            path="/find-form" 
+            path="/form/:id/explanation" 
             element={
               <ProtectedRoute>
-                <PlaceholderPage title="Find a Form" stepNumber="4" />
+                <PlaceholderPage title="AI Form Explanation" stepNumber="7" />
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/form/:id/fill" 
+            element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Form Saathi Filling" stepNumber="6" />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Upload and AI Saathi Placeholders */}
           <Route 
             path="/upload-form" 
             element={
