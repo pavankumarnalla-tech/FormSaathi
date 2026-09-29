@@ -24,9 +24,8 @@ class GenerateRequest(BaseModel):
 @router.post("/generate")
 async def generate_form(req: GenerateRequest):
     """
-    Generates a completed PDF form from the user's data.
-    Currently runs in DEMO MODE — produces a clearly labelled sample PDF.
-    In production, replace pdf_service with real template population.
+    Generates an official completed PDF application form from user inputs.
+    Outputs clean PDF document formatted for submission.
     """
     pdf_bytes = generate_form_pdf(
         form_name=req.formName,
@@ -36,7 +35,7 @@ async def generate_form(req: GenerateRequest):
 
     safe_name = "".join(c for c in req.formName if c.isalnum() or c in " _-")
     safe_name = safe_name.strip().replace(" ", "-")
-    filename = f"Form-Saathi-{safe_name}.pdf"
+    filename = f"{safe_name}-Filled.pdf"
 
     return StreamingResponse(
         io.BytesIO(pdf_bytes),

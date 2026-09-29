@@ -7,30 +7,98 @@ const FindForm = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedLevel, setSelectedLevel] = useState('ALL');     // ALL | NATIONAL | TELANGANA
+  const [selectedType, setSelectedType] = useState('ALL');       // ALL | FORM | ONLINE_SERVICE
 
-  // Filter logic
+  // ── Filter logic ─────────────────────────────────────────────────────────
   const filteredForms = forms.filter((form) => {
     const term = searchTerm.toLowerCase().trim();
-    
-    // Category match
-    const matchesCategory = selectedCategory ? form.categoryId === selectedCategory : true;
-    
-    // Search term match
-    const matchesSearch = term === '' || 
+
+    const matchesCategory  = selectedCategory ? form.categoryId === selectedCategory : true;
+    const matchesLevel     = selectedLevel !== 'ALL' ? form.governmentLevel === selectedLevel : true;
+    const matchesType      = selectedType  !== 'ALL' ? form.serviceType     === selectedType  : true;
+    const matchesSearch    = term === '' ||
       form.name.toLowerCase().includes(term) ||
       form.shortDescription.toLowerCase().includes(term) ||
       form.categoryName.toLowerCase().includes(term) ||
-      form.keywords.some(keyword => keyword.toLowerCase().includes(term));
+      (form.department || '').toLowerCase().includes(term) ||
+      (form.keywords || []).some(k => k.toLowerCase().includes(term));
 
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesLevel && matchesType && matchesSearch;
   });
 
   const handleCategoryClick = (categoryId) => {
-    if (selectedCategory === categoryId) {
-      setSelectedCategory(null); // toggle off
-    } else {
-      setSelectedCategory(categoryId);
-    }
+    setSelectedCategory(prev => prev === categoryId ? null : categoryId);
+  };
+
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory(null);
+    setSelectedLevel('ALL');
+    setSelectedType('ALL');
+  };
+
+  const hasActiveFilter = selectedCategory || selectedLevel !== 'ALL' || selectedType !== 'ALL' || searchTerm;
+
+  // ── Card rendering ────────────────────────────────────────────────────────
+  const renderFormCard = (form) => {
+    const isOnlineService = form.serviceType === 'ONLINE_SERVICE';
+    const isTemplateReady = form.status === 'official-template-ready';
+
+    return (
+      <div key={form.id} className="col-md-6 col-lg-4">
+        <div className="card border-0 rounded-4 shadow-sm h-100 d-flex flex-column p-4">
+          {/* Top badges */}
+          <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
+            {isTemplateReady ? (
+              <span className="badge rounded-pill bg-success text-white px-3 py-2 small">
+                <i className="bi bi-file-earmark-check-fill me-1"></i>Official Template Ready
+              </span>
+            ) : isOnlineService ? (
+              <span className="badge rounded-pill bg-primary-brand text-white px-3 py-2 small">
+                <i className="bi bi-laptop me-1"></i>Official Online Service
+              </span>
+            ) : (
+              <span className="badge rounded-pill bg-secondary text-white px-3 py-2 small">
+                <i className="bi bi-clock-history me-1"></i>Integration Pending
+              </span>
+            )}
+
+            <span className={`badge rounded-pill px-3 py-2 small ${
+              form.governmentLevel === 'NATIONAL' ? 'bg-info text-dark' : 'bg-warning text-dark'
+            }`}>
+              {form.governmentLevel === 'NATIONAL' ? '🇮🇳 National' : 'TS Telangana'}
+            </span>
+          </div>
+
+          {/* Title & description */}
+          <h5 className="fw-bold mb-1">{form.name}</h5>
+          <p className="text-muted small mb-1">
+            <i className="bi bi-building me-1"></i>{form.department}
+          </p>
+          <p className="text-muted-brand small flex-grow-1 mb-4">
+            {form.shortDescription}
+          </p>
+
+          {/* Action button */}
+          <div className="mt-auto">
+            <button
+              className={`w-100 d-flex justify-content-between align-items-center py-2 ${
+                isOnlineService
+                  ? 'btn btn-outline-primary rounded-pill'
+                  : isTemplateReady
+                  ? 'btn-outline-brand'
+                  : 'btn btn-outline-secondary rounded-pill'
+              }`}
+              onClick={() => navigate(`/form/${form.id}`)}
+            >
+              {isOnlineService ? 'View Service' : isTemplateReady ? 'Understand & Fill' : 'View Details'}
+              <i className="bi bi-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -43,83 +111,122 @@ const FindForm = () => {
               Dashboard
             </button>
           </li>
-          <li className="breadcrumb-item active" aria-current="page">Find a Form</li>
+          <li className="breadcrumb-item active" aria-current="page">Find a Government Form or Service</li>
         </ol>
       </nav>
 
       {/* Header */}
       <div className="mb-5 text-center">
-        <h1 className="fw-bold mb-3">Find a Form</h1>
+        <h1 className="fw-bold mb-3">Find a Government Form or Service</h1>
         <p className="lead text-muted-brand">
-          Search for the official form you need or browse by category.
+          Search for an official government form or service, or browse by category.
         </p>
+        <div className="alert alert-info border-0 rounded-4 d-inline-flex align-items-start text-start px-4 py-3 small mt-2" style={{ maxWidth: '680px' }}>
+          <i className="bi bi-info-circle-fill me-2 mt-1 flex-shrink-0"></i>
+          <span>
+            Form Saathi helps you understand and prepare government forms. Always verify the latest requirements
+            and submission instructions on the official government website.
+          </span>
+        </div>
       </div>
 
       {/* Search Bar */}
-      <div className="row justify-content-center mb-5">
+      <div className="row justify-content-center mb-4">
         <div className="col-lg-8">
           <div className="card border-0 shadow-sm rounded-pill p-2 flex-row align-items-center bg-white">
             <i className="bi bi-search ms-3 text-muted fs-5"></i>
-            <input 
-              type="text" 
-              className="form-control border-0 shadow-none fs-5 py-2 px-3" 
-              placeholder="Search forms..." 
+            <input
+              type="text"
+              className="form-control border-0 shadow-none fs-6 py-2 px-3"
+              placeholder="Search by name, department, category..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             {searchTerm && (
-              <button 
-                className="btn btn-link text-muted p-0 me-3" 
-                onClick={() => setSearchTerm('')}
-              >
+              <button className="btn btn-link text-muted p-0 me-3" onClick={() => setSearchTerm('')}>
                 <i className="bi bi-x-circle-fill fs-5"></i>
               </button>
             )}
-            <button className="btn-primary-brand rounded-pill px-4">Search</button>
           </div>
         </div>
       </div>
 
-      <div className="row">
-        {/* Categories Sidebar/Top */}
-        <div className="col-12 mb-5">
-          <div className="d-flex align-items-center justify-content-between mb-3">
-            <h5 className="fw-bold mb-0">Browse by category</h5>
-            {selectedCategory && (
-              <button 
-                className="btn btn-sm btn-outline-secondary rounded-pill"
-                onClick={() => setSelectedCategory(null)}
-              >
-                All Categories
-              </button>
-            )}
+      {/* Filters row */}
+      <div className="row justify-content-center mb-5">
+        <div className="col-lg-10">
+          <div className="d-flex flex-wrap gap-3 align-items-center justify-content-center">
+            {/* Government Level */}
+            <div className="d-flex gap-2 align-items-center">
+              <span className="text-muted small fw-bold">Level:</span>
+              {['ALL', 'NATIONAL', 'TELANGANA'].map(level => (
+                <button
+                  key={level}
+                  className={`btn btn-sm rounded-pill px-3 ${selectedLevel === level ? 'btn-primary-brand text-white' : 'btn-outline-secondary'}`}
+                  onClick={() => setSelectedLevel(level)}
+                >
+                  {level === 'ALL' ? 'All' : level === 'NATIONAL' ? '🇮🇳 National' : 'TS Telangana'}
+                </button>
+              ))}
+            </div>
+            {/* Divider */}
+            <span className="text-muted d-none d-md-inline">|</span>
+            {/* Service Type */}
+            <div className="d-flex gap-2 align-items-center">
+              <span className="text-muted small fw-bold">Type:</span>
+              {[
+                { val: 'ALL', label: 'All' },
+                { val: 'FORM', label: '📄 Forms' },
+                { val: 'ONLINE_SERVICE', label: '💻 Online Services' }
+              ].map(({ val, label }) => (
+                <button
+                  key={val}
+                  className={`btn btn-sm rounded-pill px-3 ${selectedType === val ? 'btn-primary-brand text-white' : 'btn-outline-secondary'}`}
+                  onClick={() => setSelectedType(val)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
-          
-          <div className="d-flex flex-wrap gap-3">
-            {categories.map((cat) => (
-              <div 
-                key={cat.id} 
-                className={`card border-0 shadow-sm rounded-4 flex-grow-1 ${selectedCategory === cat.id ? 'bg-primary-brand text-white' : 'bg-white'}`}
-                style={{ cursor: 'pointer', transition: 'all 0.2s', minWidth: '160px', flexBasis: 'calc(25% - 1rem)' }}
-                onClick={() => handleCategoryClick(cat.id)}
-                onMouseOver={(e) => e.currentTarget.classList.add('shadow')}
-                onMouseOut={(e) => e.currentTarget.classList.remove('shadow')}
-              >
-                <div className="card-body p-3 text-center">
-                  <i className={`bi ${cat.icon} fs-3 mb-2 d-block ${selectedCategory === cat.id ? 'text-white' : 'text-primary-brand'}`}></i>
-                  <h6 className="fw-bold mb-0">{cat.name}</h6>
-                </div>
+        </div>
+      </div>
+
+      {/* Category pills */}
+      <div className="col-12 mb-5">
+        <div className="d-flex align-items-center justify-content-between mb-3">
+          <h5 className="fw-bold mb-0">Browse by Category</h5>
+          {hasActiveFilter && (
+            <button className="btn btn-sm btn-outline-secondary rounded-pill" onClick={clearAllFilters}>
+              <i className="bi bi-x-circle me-1"></i>Clear All Filters
+            </button>
+          )}
+        </div>
+        <div className="d-flex flex-wrap gap-3">
+          {categories.map((cat) => (
+            <div
+              key={cat.id}
+              className={`card border-0 shadow-sm rounded-4 flex-grow-1 ${selectedCategory === cat.id ? 'bg-primary-brand text-white' : 'bg-white'}`}
+              style={{ cursor: 'pointer', transition: 'all 0.2s', minWidth: '140px', flexBasis: 'calc(25% - 1rem)' }}
+              onClick={() => handleCategoryClick(cat.id)}
+            >
+              <div className="card-body p-3 text-center">
+                <i className={`bi ${cat.icon} fs-3 mb-2 d-block ${selectedCategory === cat.id ? 'text-white' : 'text-primary-brand'}`}></i>
+                <h6 className="fw-bold mb-0" style={{ fontSize: '0.8rem' }}>{cat.name}</h6>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Results Header */}
+      {/* Results header */}
       <div className="mb-4 d-flex align-items-end justify-content-between">
         <div>
           <h4 className="fw-bold mb-1">
-            {selectedCategory ? `${categories.find(c => c.id === selectedCategory)?.name} Forms` : 'All Forms'}
+            {selectedCategory
+              ? `${categories.find(c => c.id === selectedCategory)?.name} Forms & Services`
+              : selectedLevel !== 'ALL'
+              ? `${selectedLevel === 'NATIONAL' ? 'National' : 'Telangana'} Forms & Services`
+              : 'All Forms & Services'}
           </h4>
           {searchTerm && (
             <p className="text-muted-brand mb-0 small">
@@ -132,56 +239,21 @@ const FindForm = () => {
         </div>
       </div>
 
-      {/* Form List */}
+      {/* Results grid */}
       <div className="row g-4">
         {filteredForms.length > 0 ? (
-          filteredForms.map((form) => (
-            <div key={form.id} className="col-md-6 col-lg-4">
-              <div className="card border-0 rounded-4 shadow-sm h-100 d-flex flex-column p-4 transition-transform hover-lift">
-                <div className="d-flex align-items-center mb-3">
-                  <div className="bg-secondary-brand text-primary-brand rounded d-flex align-items-center justify-content-center me-3" style={{ width: '40px', height: '40px' }}>
-                    <i className="bi bi-file-earmark-text fs-5"></i>
-                  </div>
-                  <span className="badge bg-light text-secondary border border-secondary-subtle rounded-pill">
-                    {form.categoryName}
-                  </span>
-                </div>
-                <h5 className="fw-bold mb-2">{form.name}</h5>
-                <p className="text-muted-brand small flex-grow-1 mb-4">
-                  {form.shortDescription}
-                </p>
-                <div className="mt-auto">
-                  <button 
-                    className="btn-outline-brand w-100 d-flex justify-content-between align-items-center py-2"
-                    onClick={() => navigate(`/form/${form.id}`)}
-                  >
-                    View Details <i className="bi bi-arrow-right"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
+          filteredForms.map(renderFormCard)
         ) : (
           <div className="col-12">
             <div className="card border-0 rounded-4 shadow-sm p-5 text-center bg-light">
-              <div className="mb-3">
-                <i className="bi bi-search fs-1 text-muted opacity-50"></i>
-              </div>
-              <h4 className="fw-bold">No forms found.</h4>
+              <i className="bi bi-search fs-1 text-muted opacity-50 mb-3"></i>
+              <h4 className="fw-bold">No forms or services found.</h4>
               <p className="text-muted-brand mb-4">
-                Try a different search term or choose another category.
+                Try a different search term, choose another category, or clear the filters.
               </p>
-              <div>
-                <button 
-                  className="btn-primary-brand px-4"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setSelectedCategory(null);
-                  }}
-                >
-                  Clear Filters
-                </button>
-              </div>
+              <button className="btn-primary-brand px-4" onClick={clearAllFilters}>
+                Clear Filters
+              </button>
             </div>
           </div>
         )}

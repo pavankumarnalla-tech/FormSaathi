@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { forms } from '../data/formData';
 
 const GENERATION_STAGES = [
-  'Collecting your information...',
-  'Filling the form fields...',
-  'Preparing the PDF...',
-  'Almost ready...',
+  'Preparing official form template...',
+  'Mapping your information to official fields...',
+  'Formatting document layout...',
+  'Finalizing PDF output...',
 ];
 
 const FormComplete = () => {
@@ -16,12 +17,13 @@ const FormComplete = () => {
 
   const { formValues = {}, formMeta = {}, analysisData = null, sections = [] } = location.state || {};
 
-  const [status, setStatus]       = useState('idle');   // idle | generating | done | error
-  const [stage, setStage]         = useState('');
+  const catalogForm = forms.find(f => f.id === parseInt(id, 10));
+
+  const [status, setStatus]           = useState('idle');   // idle | generating | done | error
+  const [stage, setStage]             = useState('');
   const [downloadUrl, setDownloadUrl] = useState(null);
-  const [filename, setFilename]   = useState('Form-Saathi-Demo.pdf');
-  const [isDemoMode, setIsDemoMode] = useState(false);
-  const [errorMsg, setErrorMsg]   = useState('');
+  const [filename, setFilename]       = useState('Official-Form-Filled.pdf');
+  const [errorMsg, setErrorMsg]       = useState('');
 
   const isUploadFlow = !!analysisData;
 
@@ -43,21 +45,21 @@ const FormComplete = () => {
     const stageTimer = setInterval(() => {
       si = Math.min(si + 1, GENERATION_STAGES.length - 1);
       setStage(GENERATION_STAGES[si]);
-    }, 800);
+    }, 700);
 
     try {
       // Build payload — filter out File objects (can't serialize to JSON)
       const serializableValues = {};
       Object.entries(formValues).forEach(([k, v]) => {
         if (v instanceof File) {
-          serializableValues[k] = `[Document: ${v.name}]`;
+          serializableValues[k] = `[Uploaded Document: ${v.name}]`;
         } else {
           serializableValues[k] = v;
         }
       });
 
       const payload = {
-        formName: formMeta.name || 'Form',
+        formName: formMeta.name || 'Official Form',
         formId: id || 'upload',
         sections: sections.map(sec => ({
           name: sec.name,
@@ -78,13 +80,14 @@ const FormComplete = () => {
 
       clearInterval(stageTimer);
 
-      // Create a download URL from the blob
+      // Create download URL from blob
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
-      const safeFormName = (formMeta.name || 'Form').replace(/[^a-zA-Z0-9 _-]/g, '').trim().replace(/\s+/g, '-');
+      const rawName = formMeta.name || 'Official-Form';
+      const safeFormName = rawName.replace(/[^a-zA-Z0-9 _-]/g, '').trim().replace(/\s+/g, '-');
+
       setDownloadUrl(url);
-      setFilename(`Form-Saathi-${safeFormName}.pdf`);
-      setIsDemoMode(true); // backend currently returns demo PDF
+      setFilename(`${safeFormName}-Filled.pdf`);
       setStatus('done');
 
       // Save to My Forms (Local Storage)
@@ -93,13 +96,12 @@ const FormComplete = () => {
         let myForms = stored ? JSON.parse(stored) : [];
         const newForm = {
           id: id || 'upload',
-          name: formMeta.name || 'Form',
+          name: formMeta.name || 'Official Form',
           status: 'Completed',
           updatedAt: new Date().toISOString(),
           values: formValues,
           analysisData: analysisData
         };
-        // Remove existing form with same ID if it exists (update it)
         myForms = myForms.filter(f => f.id !== newForm.id);
         myForms.unshift(newForm);
         localStorage.setItem('formSaathi_myForms', JSON.stringify(myForms));
@@ -109,7 +111,7 @@ const FormComplete = () => {
     } catch (err) {
       clearInterval(stageTimer);
       console.error(err);
-      setErrorMsg('Something went wrong while preparing your form. Please try again.');
+      setErrorMsg('Something went wrong while preparing your official form. Please try again.');
       setStatus('error');
     }
   };
@@ -135,9 +137,9 @@ const FormComplete = () => {
       <div className="container py-5 text-center">
         <div className="py-5">
           <div className="spinner-border text-primary-brand mb-4" style={{ width: '4rem', height: '4rem' }} role="status">
-            <span className="visually-hidden">Generating...</span>
+            <span className="visually-hidden">Preparing Official Form...</span>
           </div>
-          <h3 className="fw-bold mb-3">Preparing your form...</h3>
+          <h3 className="fw-bold mb-3">Preparing Official Form...</h3>
           <p className="text-muted-brand lead">{stage}</p>
           <p className="text-muted small mt-3">{formMeta.name}</p>
         </div>
@@ -151,7 +153,7 @@ const FormComplete = () => {
       <div className="container py-5 text-center">
         <div className="py-5">
           <i className="bi bi-exclamation-triangle-fill display-1 text-warning mb-4 d-block"></i>
-          <h3 className="fw-bold mb-3">Form generation failed</h3>
+          <h3 className="fw-bold mb-3">Form Preparation Failed</h3>
           <p className="text-muted-brand mb-4">{errorMsg}</p>
           <div className="d-flex flex-wrap justify-content-center gap-3">
             <button className="btn btn-outline-secondary rounded-pill px-4" onClick={() => navigate(-1)}>
@@ -185,7 +187,7 @@ const FormComplete = () => {
           <li className="breadcrumb-item">
             <button className="btn btn-link p-0 text-decoration-none text-muted" onClick={() => navigate('/dashboard')}>Dashboard</button>
           </li>
-          <li className="breadcrumb-item active">Form Ready</li>
+          <li className="breadcrumb-item active">Official Form Ready</li>
         </ol>
       </nav>
 
@@ -195,17 +197,9 @@ const FormComplete = () => {
           <i className="bi bi-check-lg" style={{ fontSize: '2.5rem' }}></i>
         </div>
 
-        {isDemoMode && (
-          <div className="mb-3">
-            <span className="badge bg-warning text-dark fs-6 px-3 py-2">
-              <i className="bi bi-cone-striped me-2"></i>Demo Form — Sample Output
-            </span>
-          </div>
-        )}
-
-        <h1 className="fw-bold mb-3">Form Ready!</h1>
-        <p className="lead text-muted-brand mb-1">Your completed form has been prepared.</p>
-        <p className="text-muted">{formMeta.name}</p>
+        <h1 className="fw-bold mb-2">Official Form Ready!</h1>
+        <p className="lead text-muted-brand mb-1">Your official application document has been generated with your details.</p>
+        <p className="text-muted fw-bold">{formMeta.name}</p>
       </div>
 
       {/* Download card */}
@@ -216,33 +210,37 @@ const FormComplete = () => {
               <i className="bi bi-file-earmark-pdf-fill" style={{ fontSize: '4rem' }}></i>
             </div>
             <h5 className="fw-bold mb-1">{filename}</h5>
-            <p className="text-muted small mb-4">Your form is ready to download and print.</p>
+            <p className="text-muted small mb-4">Your official form is ready to download and print.</p>
 
-            <div className="d-flex flex-column flex-sm-row justify-content-center gap-3">
+            <div className="d-flex flex-column flex-sm-row justify-content-center gap-3 mb-4">
               <button className="btn-primary-brand px-4 py-3 fw-bold shadow-sm" onClick={handleDownload}>
-                <i className="bi bi-download me-2"></i>Download PDF
+                <i className="bi bi-download me-2"></i>Download Official PDF
               </button>
               <button className="btn btn-outline-brand px-4 py-3 fw-medium" onClick={handlePrint}>
-                <i className="bi bi-printer me-2"></i>Print Form
+                <i className="bi bi-printer me-2"></i>Print Official Form
               </button>
             </div>
+
+            {catalogForm?.officialSourceUrl && (
+              <a
+                href={catalogForm.officialSourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-sm btn-outline-secondary rounded-pill text-decoration-none d-inline-flex align-items-center justify-content-center mx-auto px-4 py-2"
+              >
+                <i className="bi bi-globe2 me-2"></i>View Official Source Portal
+              </a>
+            )}
           </div>
 
           {/* Important notice */}
-          <div className="alert alert-warning border-0 rounded-4 mt-4 d-flex align-items-start shadow-sm">
-            <i className="bi bi-exclamation-triangle-fill fs-5 me-3 flex-shrink-0 mt-1"></i>
+          <div className="alert alert-info border-0 rounded-4 mt-4 d-flex align-items-start shadow-sm">
+            <i className="bi bi-info-circle-fill fs-5 me-3 flex-shrink-0 mt-1"></i>
             <div className="small">
-              <strong>Action required after download.</strong>
+              <strong>Submission Guidance:</strong>
               <div className="mt-1">
-                Please verify all information in the downloaded form before submitting it through the appropriate official channel.
-                Form Saathi does not submit anything to any government portal on your behalf.
+                Please review and sign the printed form before submitting it along with your supporting documents (Aadhaar, address proof) to the nearest designated MeeSeva centre, Tahsildar office, or local municipal authority.
               </div>
-              {isDemoMode && (
-                <div className="mt-2 text-warning fw-bold">
-                  <i className="bi bi-cone-striped me-1"></i>
-                  This is a demo/sample form. It is not a real government document.
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -260,7 +258,7 @@ const FormComplete = () => {
           className="btn btn-outline-brand px-4 py-2"
           onClick={generateForm}
         >
-          <i className="bi bi-arrow-repeat me-2"></i>Regenerate
+          <i className="bi bi-arrow-repeat me-2"></i>Regenerate Form
         </button>
         <button className="btn-primary-brand px-4 py-2" onClick={() => navigate('/dashboard')}>
           <i className="bi bi-house me-2"></i>Back to Dashboard

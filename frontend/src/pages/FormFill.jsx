@@ -97,6 +97,36 @@ const FormFill = () => {
     );
   }
 
+  // ── If serviceType is ONLINE_SERVICE ──────────────────────
+  if (formMeta.serviceType === 'ONLINE_SERVICE') {
+    return (
+      <div className="container py-5 text-center">
+        <div className="card border-0 rounded-4 shadow-sm p-5 max-w-lg mx-auto bg-white" style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div className="bg-primary-brand text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style={{ width: '64px', height: '64px' }}>
+            <i className="bi bi-laptop fs-2"></i>
+          </div>
+          <h3 className="fw-bold mb-3">{formMeta.name}</h3>
+          <p className="text-muted mb-4">
+            This is an online government service completed directly through the official portal. Form Saathi does not create fake application forms or fillable PDFs for online-only services.
+          </p>
+          <div className="d-flex flex-column gap-3">
+            <a
+              href={formMeta.officialApplicationUrl || formMeta.officialSourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary-brand py-3 fw-bold text-decoration-none"
+            >
+              <i className="bi bi-box-arrow-up-right me-2"></i>Open Official Portal
+            </a>
+            <button className="btn btn-outline-secondary rounded-pill py-2" onClick={() => navigate(`/form/${formMeta.id}`)}>
+              Back to Service Details
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const currentSection = rawSections[currentSectionIdx];
   const totalSections = rawSections.length;
   const isLastSection = currentSectionIdx === totalSections - 1;
