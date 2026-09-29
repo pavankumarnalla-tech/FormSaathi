@@ -86,8 +86,17 @@ const UploadForm = () => {
     setError(null);
 
     try {
+      const getLanguageName = (code) => {
+        if (code === 'te' || code === 'Telugu') return 'Telugu';
+        if (code === 'hi' || code === 'Hindi') return 'Hindi';
+        return 'English';
+      };
+      const rawLang = localStorage.getItem('formSaathiLanguage') || 'en';
+      const langName = getLanguageName(rawLang);
+
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("language", langName);
 
       // Using localhost:8000 for the backend MVP
       const response = await axios.post("http://localhost:8000/api/forms/analyze", formData, {

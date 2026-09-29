@@ -118,11 +118,11 @@ Instructions:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-def analyze_form(file_path: str, filename: str, content_type: str) -> dict:
+def analyze_form(file_path: str, filename: str, content_type: str, language: str = "English") -> dict:
     """
     Sends the uploaded document (PDF or image) directly to Gemini for
     native document/image understanding + structured JSON extraction.
-    Returns the parsed JSON dict.
+    Returns the parsed JSON dict with AI explanations in requested language.
     Raises ValueError with a descriptive message on any failure.
     """
     _require_client()
@@ -179,22 +179,23 @@ def analyze_form(file_path: str, filename: str, content_type: str) -> dict:
     # ── User prompt ──────────────────────────────────────────────────────────
     analysis_prompt = f"""Analyze the uploaded Indian government form document (filename: '{filename}').
 
-Extract the following information from the uploaded document into clean citizen guidance:
+Extract the following information from the uploaded document into clean citizen guidance.
+All explanations, purpose, required document descriptions, whatItMeans, whatToEnter, and important instructions MUST be written strictly in {language} language.
 
-1. Form Title: The exact official title printed at the top of the form.
-2. Purpose: A simple 1-2 sentence explanation of what this form is used for based on the text.
-3. Required Documents: Any supporting document proofs explicitly listed or requested on the form. If none listed, return [].
+1. Form Title: The exact official title printed on the form.
+2. Purpose: A simple 1-2 sentence explanation of what this form is used for in {language}.
+3. Required Documents: Any supporting document proofs explicitly listed or requested on the form (in {language}). If none listed, return [].
 4. Field-by-Field Guidance: For EVERY actual field/box printed on this form that an applicant must fill out:
-   - "name": Exact field name as printed on the form (e.g., "Applicant Name", "Date of Birth", "Door No").
-   - "whatItMeans": Simple 1-sentence explanation of what this field means.
-   - "whatToEnter": Simple 1-sentence instruction on what information the citizen should enter.
-5. Important Instructions: Any official guidelines, notes, or submission instructions printed on the form. If none, return [].
+   - "name": Exact field name as printed on the form.
+   - "whatItMeans": Simple 1-sentence explanation of what this field means, written in {language}.
+   - "whatToEnter": Simple 1-sentence instruction on what information the citizen should enter, written in {language}.
+5. Important Instructions: Any official guidelines, notes, or submission instructions printed on the form (in {language}). If none, return [].
 
 Return ONLY a valid JSON object matching this exact schema — no markdown, no extra explanation:
 
 {{
   "formTitle": "Official Form Title",
-  "purpose": "Simple explanation of what this form is for.",
+  "purpose": "Simple explanation of what this form is for in {language}.",
   "requiredDocuments": [
     "Aadhaar Card Copy",
     "Proof of Income"
@@ -202,8 +203,8 @@ Return ONLY a valid JSON object matching this exact schema — no markdown, no e
   "fieldsGuidance": [
     {{
       "name": "Field Name as printed",
-      "whatItMeans": "Simple 1-sentence explanation.",
-      "whatToEnter": "Simple 1-sentence instruction."
+      "whatItMeans": "Simple 1-sentence explanation in {language}.",
+      "whatToEnter": "Simple 1-sentence instruction in {language}."
     }}
   ],
   "importantInstructions": [
@@ -213,6 +214,7 @@ Return ONLY a valid JSON object matching this exact schema — no markdown, no e
 }}
 
 Rules:
+- Write ALL explanations (purpose, whatItMeans, whatToEnter, instructions, documents) strictly in {language}.
 - Include ONLY fields visible in the uploaded document. Do NOT invent fields.
 - Do NOT include technical extraction data, raw codes, coordinates, or confidence scores.
 - Different uploaded forms must produce different fields specific to that uploaded document.
@@ -293,17 +295,18 @@ def generate_dynamic_field_guidance(
     department: str = "",
     purpose: str = "",
     pdf_text: str = "",
+    language: str = "English",
 ) -> list:
     """
     Calls Gemini to analyze the form's extracted PDF text (or official metadata)
-    and extract actual field names, what they mean, and what to enter.
+    and extract actual field names, what they mean, and what to enter in the requested language.
 
     Returns a list of dicts:
     [
       {
         "name": "Applicant Name",
-        "whatItMeans": "The full legal name of the applicant as shown on identity documents.",
-        "whatToEnter": "Enter your full name exactly as printed on your Aadhaar card."
+        "whatItMeans": "Explanation in requested language.",
+        "whatToEnter": "Instruction in requested language."
       },
       ...
     ]
@@ -315,6 +318,7 @@ def generate_dynamic_field_guidance(
 
 Form Name: {form_name}
 Department: {department}
+Target Explanation Language: {language}
 
 Extracted Text from the Official Government Form PDF:
 \"\"\"
@@ -325,20 +329,21 @@ Task:
 Analyze the form text above and identify ALL actual fields/questions that the applicant must fill in this specific form.
 For every identified field, generate:
 - "name": The exact or clear name of the field as printed on the form.
-- "whatItMeans": Simple 1-sentence explanation of what this field means.
-- "whatToEnter": Simple 1-sentence instruction on what information the citizen should enter.
+- "whatItMeans": Simple 1-sentence explanation of what this field means, written strictly in {language}.
+- "whatToEnter": Simple 1-sentence instruction on what information the citizen should enter, written strictly in {language}.
 
 Return ONLY a valid JSON array of objects. Do NOT wrap in markdown or extra text.
 Example format:
 [
   {{
     "name": "Applicant Name",
-    "whatItMeans": "The full legal name of the applicant.",
-    "whatToEnter": "Enter your full name exactly as shown on your Aadhaar card."
+    "whatItMeans": "Explanation strictly in {language}.",
+    "whatToEnter": "Instruction strictly in {language}."
   }}
 ]
 
 Rules:
+- Write "whatItMeans" and "whatToEnter" strictly in {language}.
 - Include ONLY fields that actually exist or are directly referenced in the form.
 - Do NOT invent fields.
 - Do NOT include generic fields if they do not exist in this form.
@@ -349,24 +354,26 @@ Rules:
 Form Name: {form_name}
 Department: {department}
 Purpose: {purpose}
+Target Explanation Language: {language}
 
 Task:
 Based strictly on the official service purpose and department details for '{form_name}', identify the standard required fields for this specific government form.
 For every field, generate:
 - "name": Clear field name (e.g., Child Name for Birth Certificate, Deceased Name for Death Certificate, Income Details for Income Certificate).
-- "whatItMeans": Simple 1-sentence explanation of what this field means.
-- "whatToEnter": Simple 1-sentence instruction on what the citizen should enter.
+- "whatItMeans": Simple 1-sentence explanation written strictly in {language}.
+- "whatToEnter": Simple 1-sentence instruction written strictly in {language}.
 
 Return ONLY a valid JSON array of objects matching this format:
 [
   {{
     "name": "Field Name",
-    "whatItMeans": "Simple explanation.",
-    "whatToEnter": "Simple instruction."
+    "whatItMeans": "Simple explanation in {language}.",
+    "whatToEnter": "Simple instruction in {language}."
   }}
 ]
 
 Rules:
+- Write "whatItMeans" and "whatToEnter" strictly in {language}.
 - Focus strictly on fields specific to {form_name}.
 - Do NOT return a generic template if specific fields cannot be determined. If impossible to determine, return [].
 """

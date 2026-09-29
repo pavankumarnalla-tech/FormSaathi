@@ -14,15 +14,46 @@ const FindForm = () => {
   const filteredForms = forms.filter((form) => {
     const term = searchTerm.toLowerCase().trim();
 
-    const matchesCategory  = selectedCategory ? form.categoryId === selectedCategory : true;
+    let matchesCategory = true;
+    if (selectedCategory) {
+      const formName = form.name.toLowerCase();
+      const dept = (form.department || '').toLowerCase();
+      
+      switch (selectedCategory) {
+        case 'identity':
+          matchesCategory = dept.includes('aadhaar') || dept.includes('election') || formName.includes('identity');
+          break;
+        case 'certificates':
+          matchesCategory = formName.includes('certificate');
+          break;
+        case 'education':
+          matchesCategory = form.categoryId === 'education';
+          break;
+        case 'income':
+          matchesCategory = form.categoryId === 'income' || formName.includes('income') || formName.includes('tax');
+          break;
+        case 'employment':
+          matchesCategory = form.categoryId === 'labour' || formName.includes('pension') || formName.includes('employment');
+          break;
+        case 'healthcare':
+          matchesCategory = form.categoryId === 'health';
+          break;
+        case 'transport':
+          matchesCategory = formName.includes('transport') || formName.includes('vehicle') || formName.includes('driving');
+          break;
+        case 'social_welfare':
+          matchesCategory = form.categoryId === 'welfare' || formName.includes('welfare');
+          break;
+        default:
+          matchesCategory = false;
+      }
+    }
+
     const matchesLevel     = selectedLevel !== 'ALL' ? form.governmentLevel === selectedLevel : true;
     const matchesType      = selectedType  !== 'ALL' ? form.serviceType     === selectedType  : true;
-    const matchesSearch    = term === '' ||
-      form.name.toLowerCase().includes(term) ||
-      form.shortDescription.toLowerCase().includes(term) ||
-      form.categoryName.toLowerCase().includes(term) ||
-      (form.department || '').toLowerCase().includes(term) ||
-      (form.keywords || []).some(k => k.toLowerCase().includes(term));
+    
+    // Make the search box work for filtering forms by title/name ONLY.
+    const matchesSearch    = term === '' || form.name.toLowerCase().includes(term);
 
     return matchesCategory && matchesLevel && matchesType && matchesSearch;
   });

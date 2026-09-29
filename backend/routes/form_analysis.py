@@ -2,7 +2,7 @@ import os
 import json
 import shutil
 import uuid
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional
@@ -30,10 +30,13 @@ MAX_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 @router.post("/analyze")
-async def analyze_uploaded_form(file: UploadFile = File(...)):
+async def analyze_uploaded_form(
+    file: UploadFile = File(...),
+    language: Optional[str] = Form("English"),
+):
     """
     Receives an uploaded form (PDF or image), sends it to Gemini for
-    native document understanding, and returns structured JSON analysis.
+    native document understanding, and returns structured JSON analysis in requested language.
     """
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file was provided.")
@@ -65,7 +68,7 @@ async def analyze_uploaded_form(file: UploadFile = File(...)):
                 detail=f"File too large ({file_size // (1024*1024)} MB). Maximum allowed size is 10 MB.",
             )
 
-        result = analyze_form(temp_path, file.filename, content_type)
+        result = analyze_form(temp_path, file.filename, content_type, language=language or "English")
         return {"success": True, "data": result}
 
     except HTTPException:
@@ -112,16 +115,19 @@ class GuidanceRequest(BaseModel):
     department: Optional[str] = ""
     purpose: Optional[str] = ""
     localPdfPath: Optional[str] = None
+    language: Optional[str] = "English"
 
 
 @router.post("/guidance")
 def get_form_dynamic_guidance(req: GuidanceRequest):
     """
-    Returns form-specific dynamic field guidance (name, whatItMeans, whatToEnter).
-    Checks guidance_cache/{formId}.json first. If not cached, analyzes PDF/metadata using Gemini,
+    Returns form-specific dynamic field guidance (name, whatItMeans, whatToEnter) in requested language.
+    Checks guidance_cache/{formId}_{language}.json first. If not cached, analyzes PDF/metadata using Gemini,
     caches the result on disk, and returns it.
     """
-    cache_path = os.path.join(GUIDANCE_CACHE_DIR, f"{req.formId}.json")
+    lang_name = req.language or "English"
+    lang_key = lang_name.lower().replace(" ", "_")
+    cache_path = os.path.join(GUIDANCE_CACHE_DIR, f"{req.formId}_{lang_key}.json")
 
     # 1. Check disk cache
     if os.path.exists(cache_path):
@@ -131,6 +137,17 @@ def get_form_dynamic_guidance(req: GuidanceRequest):
             return {"success": True, "cached": True, "fields": cached_data}
         except Exception as e:
             print(f"Failed to read cache for form {req.formId}: {e}")
+
+    # Fallback check for legacy cache format if language is English
+    if lang_key == "english":
+        legacy_cache = os.path.join(GUIDANCE_CACHE_DIR, f"{req.formId}.json")
+        if os.path.exists(legacy_cache):
+            try:
+                with open(legacy_cache, "r", encoding="utf-8") as f:
+                    cached_data = json.load(f)
+                return {"success": True, "cached": True, "fields": cached_data}
+            except Exception as e:
+                print(f"Failed to read legacy cache for form {req.formId}: {e}")
 
     # 2. Extract PDF text if local PDF exists
     pdf_text = ""
@@ -150,14 +167,15 @@ def get_form_dynamic_guidance(req: GuidanceRequest):
             except Exception as e:
                 print(f"Error extracting PDF text for guidance: {e}")
 
-    # 3. Call Gemini for dynamic guidance
+    # 3. Call Gemini for dynamic guidance in requested language
     fields = []
     try:
         fields = generate_dynamic_field_guidance(
             form_name=req.formName,
             department=req.department or "",
             purpose=req.purpose or "",
-            pdf_text=pdf_text
+            pdf_text=pdf_text,
+            language=lang_name
         )
     except Exception as e:
         print(f"Error generating dynamic field guidance for form {req.formId}: {e}")
@@ -166,7 +184,7 @@ def get_form_dynamic_guidance(req: GuidanceRequest):
     if fields:
         try:
             with open(cache_path, "w", encoding="utf-8") as f:
-                json.dump(fields, f, indent=2)
+                json.dump(fields, f, indent=2, ensure_ascii=False)
         except Exception as e:
             print(f"Failed to write cache for form {req.formId}: {e}")
 

@@ -14,7 +14,13 @@ const FormInformation = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [fieldsGuidance, setFieldsGuidance] = useState([]);
   const [loadingGuidance, setLoadingGuidance] = useState(true);
-  const language = localStorage.getItem('formSaathiLanguage') || 'English';
+  const getLanguageName = (code) => {
+    if (code === 'te' || code === 'Telugu') return 'Telugu';
+    if (code === 'hi' || code === 'Hindi') return 'Hindi';
+    return 'English';
+  };
+  const rawLanguage = localStorage.getItem('formSaathiLanguage') || 'en';
+  const language = getLanguageName(rawLanguage);
 
   // Check if form is saved in localStorage
   useEffect(() => {
@@ -44,6 +50,7 @@ const FormInformation = () => {
           department: form.department || '',
           purpose: form.purpose || '',
           localPdfPath: form.localPdfPath || null,
+          language: language,
         }, { timeout: 15000 });
 
         if (isMounted && res.data && res.data.fields) {
@@ -60,7 +67,7 @@ const FormInformation = () => {
     fetchGuidance();
 
     return () => { isMounted = false; };
-  }, [form]);
+  }, [form, language]);
 
   const toggleSaveForm = () => {
     if (!form) return;

@@ -28,7 +28,10 @@ const Welcome = () => {
                 >
                   Get Started
                 </button>
-                <button className="btn-outline-brand fs-5 px-4 py-2">
+                <button
+                  className="btn-outline-brand fs-5 px-4 py-2"
+                  onClick={() => document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' })}
+                >
                   How It Works
                 </button>
               </div>
@@ -73,10 +76,10 @@ const Welcome = () => {
             <div className="col-md-6 col-lg-3">
               <div className="feature-card p-4">
                 <div className="icon-wrapper">
-                  <i className="bi bi-book"></i>
+                  <i className="bi bi-search"></i>
                 </div>
-                <h5 className="fw-bold mb-3">Understand Forms</h5>
-                <p className="text-muted-brand mb-0">Get simple explanations for confusing form fields.</p>
+                <h5 className="fw-bold mb-3">Discover Forms</h5>
+                <p className="text-muted-brand mb-0">Search 170+ official government forms and services across multiple departments.</p>
               </div>
             </div>
             <div className="col-md-6 col-lg-3">
@@ -84,26 +87,26 @@ const Welcome = () => {
                 <div className="icon-wrapper">
                   <i className="bi bi-robot"></i>
                 </div>
-                <h5 className="fw-bold mb-3">AI Assistance</h5>
-                <p className="text-muted-brand mb-0">Ask AI Saathi what a field means and what information you need.</p>
+                <h5 className="fw-bold mb-3">AI Guidance</h5>
+                <p className="text-muted-brand mb-0">Ask AI Saathi what a field means, what documents you need, and how to apply.</p>
               </div>
             </div>
             <div className="col-md-6 col-lg-3">
               <div className="feature-card p-4">
                 <div className="icon-wrapper">
-                  <i className="bi bi-file-text"></i>
+                  <i className="bi bi-upload"></i>
                 </div>
-                <h5 className="fw-bold mb-3">Document Assistance</h5>
-                <p className="text-muted-brand mb-0">Use your documents to help identify required information.</p>
+                <h5 className="fw-bold mb-3">Upload & Analyze</h5>
+                <p className="text-muted-brand mb-0">Upload any government PDF and get a field-by-field plain-language breakdown.</p>
               </div>
             </div>
             <div className="col-md-6 col-lg-3">
               <div className="feature-card p-4">
                 <div className="icon-wrapper">
-                  <i className="bi bi-check2-circle"></i>
+                  <i className="bi bi-translate"></i>
                 </div>
-                <h5 className="fw-bold mb-3">Check Before You Submit</h5>
-                <p className="text-muted-brand mb-0">Validate your information and identify missing details.</p>
+                <h5 className="fw-bold mb-3">Your Language</h5>
+                <p className="text-muted-brand mb-0">Get all guidance in English, Telugu, or Hindi — whichever you choose.</p>
               </div>
             </div>
           </div>
@@ -111,7 +114,7 @@ const Welcome = () => {
       </section>
 
       {/* How it Works Section */}
-      <section className="section-padding">
+      <section id="how-it-works" className="section-padding">
         <div className="container">
           <div className="text-center mb-5">
             <h2 className="fw-bold">How It Works</h2>
@@ -120,29 +123,29 @@ const Welcome = () => {
             <div className="col-sm-6 col-lg-3">
               <div className="step-card">
                 <div className="step-number">01</div>
-                <h5 className="fw-bold mb-2">Find or Upload</h5>
-                <p className="text-muted-brand small mb-0">Find the form you need or upload one you already have.</p>
+                <h5 className="fw-bold mb-2">Find a Form</h5>
+                <p className="text-muted-brand small mb-0">Search and discover the government form you need from our catalogue.</p>
               </div>
             </div>
             <div className="col-sm-6 col-lg-3">
               <div className="step-card">
                 <div className="step-number">02</div>
-                <h5 className="fw-bold mb-2">Understand & Fill</h5>
-                <p className="text-muted-brand small mb-0">Form Saathi explains the fields and guides you.</p>
+                <h5 className="fw-bold mb-2">Understand the Form</h5>
+                <p className="text-muted-brand small mb-0">Get simple AI explanations of the form, fields, eligibility, required documents, and instructions.</p>
               </div>
             </div>
             <div className="col-sm-6 col-lg-3">
               <div className="step-card">
                 <div className="step-number">03</div>
-                <h5 className="fw-bold mb-2">Verify</h5>
-                <p className="text-muted-brand small mb-0">Check your information and required documents.</p>
+                <h5 className="fw-bold mb-2">Upload & Analyze</h5>
+                <p className="text-muted-brand small mb-0">Upload a government form PDF and let Form Saathi explain its actual fields and requirements.</p>
               </div>
             </div>
             <div className="col-sm-6 col-lg-3">
               <div className="step-card">
                 <div className="step-number">04</div>
-                <h5 className="fw-bold mb-2">Download</h5>
-                <p className="text-muted-brand small mb-0">Generate and download the completed official form.</p>
+                <h5 className="fw-bold mb-2">Use the Official Form</h5>
+                <p className="text-muted-brand small mb-0">Open or download the original official government form directly from its official source.</p>
               </div>
             </div>
           </div>

@@ -26,7 +26,13 @@ const FormAnalysis = () => {
   const [aiField, setAiField]     = useState(null);
 
   const stageTimerRef = useRef(null);
-  const language = localStorage.getItem('formSaathiLanguage') || 'English';
+  const getLanguageName = (code) => {
+    if (code === 'te' || code === 'Telugu') return 'Telugu';
+    if (code === 'hi' || code === 'Hindi') return 'Hindi';
+    return 'English';
+  };
+  const rawLang = localStorage.getItem('formSaathiLanguage') || 'en';
+  const language = getLanguageName(rawLang);
 
   useEffect(() => {
     if (!result) {
@@ -76,6 +82,7 @@ const FormAnalysis = () => {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("language", language);
       const response = await axios.post("http://localhost:8000/api/forms/analyze", formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
