@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE from '../api/config';
 
 const UploadForm = () => {
   const [file, setFile] = useState(null);
@@ -98,8 +99,7 @@ const UploadForm = () => {
       formData.append("file", file);
       formData.append("language", langName);
 
-      // Using localhost:8000 for the backend MVP
-      const response = await axios.post("http://localhost:8000/api/forms/analyze", formData, {
+      const response = await axios.post(`${API_BASE}/api/forms/analyze`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import API_BASE from '../api/config';
 
 /**
  * AISaathiPanel — contextual AI help panel shown alongside a form field.
@@ -32,7 +33,7 @@ const AISaathiPanel = ({ formName, sectionName, field, language = 'English', onC
     setError(null);
 
     try {
-      const res = await axios.post('http://localhost:8000/api/ai/assist', {
+      const res = await axios.post(`${API_BASE}/api/ai/assist`, {
         formName: formName || 'Official Application',
         sectionName: sectionName || 'General',
         fieldName: field.name,

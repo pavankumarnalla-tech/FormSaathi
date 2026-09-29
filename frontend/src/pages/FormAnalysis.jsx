@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AISaathiPanel from '../components/AISaathiPanel';
+import API_BASE from '../api/config';
 
 const ANALYSIS_STAGES = [
   "Reading document...",
@@ -83,7 +84,7 @@ const FormAnalysis = () => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("language", language);
-      const response = await axios.post("http://localhost:8000/api/forms/analyze", formData, {
+      const response = await axios.post(`${API_BASE}/api/forms/analyze`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       clearInterval(stageTimerRef.current);

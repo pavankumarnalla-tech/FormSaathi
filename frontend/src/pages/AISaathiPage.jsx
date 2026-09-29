@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE from '../api/config';
 
 const AISaathiPage = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const AISaathiPage = () => {
     setError(null);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/ai/assist', {
+      const response = await axios.post(`${API_BASE}/api/ai/assist`, {
         formName: 'General Form Guidance',
         sectionName: 'General Inquiry',
         fieldName: 'General Guidance',

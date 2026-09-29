@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { forms } from '../data/formData';
 import AISaathiPanel from '../components/AISaathiPanel';
+import API_BASE from '../api/config';
 
 const FormInformation = () => {
   const { id } = useParams();
@@ -44,7 +45,7 @@ const FormInformation = () => {
 
     const fetchGuidance = async () => {
       try {
-        const res = await axios.post('http://localhost:8000/api/forms/guidance', {
+        const res = await axios.post(`${API_BASE}/api/forms/guidance`, {
           formId: form.id,
           formName: form.name,
           department: form.department || '',
@@ -112,7 +113,7 @@ const FormInformation = () => {
   // ISSUE 1 FIX: Official Links & PDF serving
   const officialSourceUrl = form.officialSourceUrl || form.officialApplicationUrl || 'https://ts.meeseva.telangana.gov.in/TSDeptPortal/Meeseva-Applications.html';
   const hasLocalPdf = !!form.localPdfPath;
-  const rawPdfUrl = hasLocalPdf ? `http://localhost:8000/api/forms/raw-pdf/${form.localPdfPath}` : null;
+  const rawPdfUrl = hasLocalPdf ? `${API_BASE}/api/forms/raw-pdf/${form.localPdfPath}` : null;
 
   return (
     <div className="container py-4 py-md-5">
