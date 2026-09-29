@@ -1,5 +1,32 @@
-node_modules/ 
-dist/ 
+# ── Frontend build artifacts ──────────────────────────────────────────────────
+node_modules/
+dist/
+.env.local
+
+# ── Environment secrets (NEVER commit) ───────────────────────────────────────
 .env
+**/.env
+backend/.env
+frontend/.env
+
+# ── Credentials / keys ────────────────────────────────────────────────────────
 credentials/
-.env.local 
+*.key
+*.pem
+
+# ── Python / Backend ──────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# ── Cache directories created by Form Saathi ─────────────────────────────────
+backend/guidance_cache/
+backend/upload_guidance_cache/
+backend/temp_uploads/
+
+# ── OS artifacts ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

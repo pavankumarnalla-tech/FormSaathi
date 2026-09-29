@@ -11,7 +11,7 @@ try:
     Base.metadata.create_all(bind=engine)
     print("Database tables initialized successfully.")
 except Exception as e:
-    print(f"Warning: Database initialization error (make sure MySQL is running): {e}")
+    print(f"Warning: Database initialization error: {e}")
 
 app = FastAPI(
     title="Form Saathi Backend API",

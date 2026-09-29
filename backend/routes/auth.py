@@ -17,7 +17,7 @@ router = APIRouter()
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 def register_user(user_data: UserRegister, db: Session = Depends(get_db)):
     """
-    Register a new user in MySQL database.
+    Register a new user in the database.
     """
     try:
         clean_email = user_data.email.lower().strip()
@@ -48,7 +48,7 @@ def register_user(user_data: UserRegister, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Database connection error. Please make sure MySQL is running."
+            detail="Database connection error. Please check your database configuration."
         )
     except HTTPException:
         raise
@@ -62,7 +62,7 @@ def register_user(user_data: UserRegister, db: Session = Depends(get_db)):
 @router.post("/login", response_model=TokenResponse)
 def login_user(login_data: UserLogin, db: Session = Depends(get_db)):
     """
-    Authenticate user against MySQL database.
+    Authenticate user against the database.
     """
     try:
         clean_email = login_data.email.lower().strip()
@@ -88,7 +88,7 @@ def login_user(login_data: UserLogin, db: Session = Depends(get_db)):
     except OperationalError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Database connection error. Please make sure MySQL is running."
+            detail="Database connection error. Please check your database configuration."
         )
     except HTTPException:
         raise
