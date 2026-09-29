@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Applicant Name",
+    "whatItMeans": "This is the full name of the person applying for the Apathbandu scheme.",
+    "whatToEnter": "Enter your full name as recorded in official identity documents."
+  },
+  {
+    "name": "Father's / Husband's Name",
+    "whatItMeans": "This is the name of the applicant's father or husband for familial identification.",
+    "whatToEnter": "Enter the name of your father or husband."
+  },
+  {
+    "name": "Date of Age / Birth",
+    "whatItMeans": "This indicates the applicant's age or exact date of birth to verify eligibility.",
+    "whatToEnter": "Enter your date of birth or current age in years."
+  },
+  {
+    "name": "Gender",
+    "whatItMeans": "This specifies the gender of the applicant.",
+    "whatToEnter": "Select or enter your gender (Male, Female, or Other)."
+  },
+  {
+    "name": "Caste / Category",
+    "whatItMeans": "This refers to the social category or caste of the applicant for administrative records.",
+    "whatToEnter": "Enter your caste and select your category (SC, ST, BC, or OC)."
+  },
+  {
+    "name": "Address Details",
+    "whatItMeans": "This is the permanent residential address of the applicant including district and mandal.",
+    "whatToEnter": "Enter your complete residential address including house number, street, village/town, mandal, and district."
+  },
+  {
+    "name": "Mobile Number",
+    "whatItMeans": "This is the primary contact number of the applicant for receiving updates and verification.",
+    "whatToEnter": "Enter a valid 10-digit mobile number."
+  },
+  {
+    "name": "Deceased / Accident Victim Details",
+    "whatItMeans": "This provides information about the person who met with the fatal accident or emergency covered under the Apathbandu scheme.",
+    "whatToEnter": "Enter the name, age, and relationship of the victim to the applicant, if applicable."
+  },
+  {
+    "name": "Details of the Accident / Incident",
+    "whatItMeans": "This describes how, when, and where the accident or unfortunate incident occurred.",
+    "whatToEnter": "Provide the date, time, location, and brief description of the accident."
+  },
+  {
+    "name": "FIR / Police Station Details",
+    "whatItMeans": "This records the police complaint or First Information Report registered regarding the accident.",
+    "whatToEnter": "Enter the FIR number, date, and name of the police station where the case was registered."
+  },
+  {
+    "name": "Bank Account Details",
+    "whatItMeans": "This is the bank account information of the applicant where financial assistance or relief funds will be directly credited.",
+    "whatToEnter": "Enter your bank account number, bank name, branch, and IFSC code."
+  }
+]

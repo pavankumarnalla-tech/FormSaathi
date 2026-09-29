@@ -83,16 +83,10 @@ const FindForm = () => {
           {/* Action button */}
           <div className="mt-auto">
             <button
-              className={`w-100 d-flex justify-content-between align-items-center py-2 ${
-                isOnlineService
-                  ? 'btn btn-outline-primary rounded-pill'
-                  : isTemplateReady
-                  ? 'btn-outline-brand'
-                  : 'btn btn-outline-secondary rounded-pill'
-              }`}
+              className="btn-outline-brand w-100 d-flex justify-content-between align-items-center py-2"
               onClick={() => navigate(`/form/${form.id}`)}
             >
-              {isOnlineService ? 'View Service' : isTemplateReady ? 'Understand & Fill' : 'View Details'}
+              View Details & Guidance
               <i className="bi bi-arrow-right"></i>
             </button>
           </div>

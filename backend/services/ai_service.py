@@ -58,26 +58,30 @@ def get_field_assistance(
     """
     _require_client()
 
-    prompt = f"""You are 'AI Saathi', a helpful citizen assistance assistant for official Indian government forms.
-Your job is to help citizens understand and fill their forms correctly.
-Always answer clearly, accurately, and in simple language.
-Never invent legal requirements or document names.
-Always answer strictly in the language requested.
+    prompt = f"""You are 'AI Saathi', an AI assistant helping citizens understand official Indian government forms, application requirements, and field definitions.
+
+Your role:
+- Explain what the requested field means and what information the citizen should enter.
+- Simplify complex government terminology into plain, easy-to-understand language.
+- Preserve the exact legal and factual meaning of official terms.
+- Never invent fees, eligibility rules, or document requirements.
+- Never claim that an application has been submitted by Form Saathi.
+- If asked whether Form Saathi submits applications or generates completed forms, clearly clarify: "Form Saathi provides guidance only. Applications must be submitted through the official government portal or MeeSeva center."
+- Respond strictly in the requested language ({language}).
 
 Context:
-- Form Name      : {form_name or 'Official Application'}
+- Form / Service : {form_name or 'Official Application'}
 - Section        : {section_name or 'General'}
 - Field Name     : {field_name or 'Selected Field'}
-- Field Details  : {field_description or 'N/A'}
+- Field Context  : {field_description or 'N/A'}
 - Reply Language : {language}
 
 Citizen's Question: "{question}"
 
 Instructions:
 1. Explain what this field means and what the citizen should enter.
-2. If relevant, mention where to obtain the information or document.
-3. Keep the response to 2–4 clear, conversational sentences.
-4. Respond entirely in {language}.
+2. Keep the response to 2–4 clear, conversational sentences.
+3. Respond entirely in {language}.
 """
 
     try:
@@ -173,56 +177,46 @@ def analyze_form(file_path: str, filename: str, content_type: str) -> dict:
     )
 
     # ── User prompt ──────────────────────────────────────────────────────────
-    analysis_prompt = f"""Analyse the uploaded form document (filename: '{filename}').
+    analysis_prompt = f"""Analyze the uploaded Indian government form document (filename: '{filename}').
 
-Carefully examine:
-- The form title and type
-- All sections and sub-sections
-- Every field label, type, and any pre-filled value
-- Checkboxes and their checked/unchecked state
-- Radio buttons and selected option
-- Dates, signatures, tables
-- Required vs optional field indicators
-- Any supporting document requirements
-- Any instructions printed on the form
+Extract the following information from the uploaded document into clean citizen guidance:
 
-Return ONLY a valid JSON object matching this exact schema — no markdown, no explanation, only raw JSON:
+1. Form Title: The exact official title printed at the top of the form.
+2. Purpose: A simple 1-2 sentence explanation of what this form is used for based on the text.
+3. Required Documents: Any supporting document proofs explicitly listed or requested on the form. If none listed, return [].
+4. Field-by-Field Guidance: For EVERY actual field/box printed on this form that an applicant must fill out:
+   - "name": Exact field name as printed on the form (e.g., "Applicant Name", "Date of Birth", "Door No").
+   - "whatItMeans": Simple 1-sentence explanation of what this field means.
+   - "whatToEnter": Simple 1-sentence instruction on what information the citizen should enter.
+5. Important Instructions: Any official guidelines, notes, or submission instructions printed on the form. If none, return [].
+
+Return ONLY a valid JSON object matching this exact schema — no markdown, no extra explanation:
 
 {{
-  "formSummary": {{
-    "name": "Detected form title",
-    "confidence": "High (95%)",
-    "totalFields": 0,
-    "completedFields": 0,
-    "emptyFields": 0,
-    "needsReview": 0
-  }},
-  "sections": [
+  "formTitle": "Official Form Title",
+  "purpose": "Simple explanation of what this form is for.",
+  "requiredDocuments": [
+    "Aadhaar Card Copy",
+    "Proof of Income"
+  ],
+  "fieldsGuidance": [
     {{
-      "name": "Section Name",
-      "fields": [
-        {{
-          "name": "Field Name",
-          "label": "Field Label as printed",
-          "type": "text|number|date|email|phone|address|select|radio|checkbox|textarea|signature|file|unknown",
-          "required": true,
-          "value": "extracted value or empty string",
-          "status": "found|empty|review",
-          "help": "Brief description of what this field is for"
-        }}
-      ]
+      "name": "Field Name as printed",
+      "whatItMeans": "Simple 1-sentence explanation.",
+      "whatToEnter": "Simple 1-sentence instruction."
     }}
+  ],
+  "importantInstructions": [
+    "Instruction line 1",
+    "Instruction line 2"
   ]
 }}
 
 Rules:
-- status must be "found" if a value exists, "empty" if blank, "review" if unclear or partially filled.
-- Do not invent field names. Only include fields visible in the document.
-- totalFields must equal the sum of all fields across all sections.
-- completedFields = number of "found" fields.
-- emptyFields = number of "empty" fields.
-- needsReview = number of "review" fields.
-- Return ONLY the raw JSON string. No code blocks, no markdown.
+- Include ONLY fields visible in the uploaded document. Do NOT invent fields.
+- Do NOT include technical extraction data, raw codes, coordinates, or confidence scores.
+- Different uploaded forms must produce different fields specific to that uploaded document.
+- Return ONLY the raw JSON string.
 """
 
     # ── Call Gemini ──────────────────────────────────────────────────────────
@@ -283,11 +277,117 @@ Rules:
         )
 
     # ── Validate minimum schema ──────────────────────────────────────────────
-    if "formSummary" not in result or "sections" not in result:
+    if "formTitle" not in result and "fieldsGuidance" not in result:
         raise ValueError(
-            "Gemini response is missing required fields ('formSummary' or 'sections'). "
+            "Gemini response is missing required guidance fields ('formTitle' or 'fieldsGuidance'). "
             "The document may not be a recognisable form."
         )
 
     result["isDemoMode"] = False
     return result
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+def generate_dynamic_field_guidance(
+    form_name: str,
+    department: str = "",
+    purpose: str = "",
+    pdf_text: str = "",
+) -> list:
+    """
+    Calls Gemini to analyze the form's extracted PDF text (or official metadata)
+    and extract actual field names, what they mean, and what to enter.
+
+    Returns a list of dicts:
+    [
+      {
+        "name": "Applicant Name",
+        "whatItMeans": "The full legal name of the applicant as shown on identity documents.",
+        "whatToEnter": "Enter your full name exactly as printed on your Aadhaar card."
+      },
+      ...
+    ]
+    """
+    _require_client()
+
+    if pdf_text and pdf_text.strip():
+        prompt = f"""You are an expert Indian government form analyzer.
+
+Form Name: {form_name}
+Department: {department}
+
+Extracted Text from the Official Government Form PDF:
+\"\"\"
+{pdf_text[:3000]}
+\"\"\"
+
+Task:
+Analyze the form text above and identify ALL actual fields/questions that the applicant must fill in this specific form.
+For every identified field, generate:
+- "name": The exact or clear name of the field as printed on the form.
+- "whatItMeans": Simple 1-sentence explanation of what this field means.
+- "whatToEnter": Simple 1-sentence instruction on what information the citizen should enter.
+
+Return ONLY a valid JSON array of objects. Do NOT wrap in markdown or extra text.
+Example format:
+[
+  {{
+    "name": "Applicant Name",
+    "whatItMeans": "The full legal name of the applicant.",
+    "whatToEnter": "Enter your full name exactly as shown on your Aadhaar card."
+  }}
+]
+
+Rules:
+- Include ONLY fields that actually exist or are directly referenced in the form.
+- Do NOT invent fields.
+- Do NOT include generic fields if they do not exist in this form.
+"""
+    else:
+        prompt = f"""You are an expert Indian government form analyzer.
+
+Form Name: {form_name}
+Department: {department}
+Purpose: {purpose}
+
+Task:
+Based strictly on the official service purpose and department details for '{form_name}', identify the standard required fields for this specific government form.
+For every field, generate:
+- "name": Clear field name (e.g., Child Name for Birth Certificate, Deceased Name for Death Certificate, Income Details for Income Certificate).
+- "whatItMeans": Simple 1-sentence explanation of what this field means.
+- "whatToEnter": Simple 1-sentence instruction on what the citizen should enter.
+
+Return ONLY a valid JSON array of objects matching this format:
+[
+  {{
+    "name": "Field Name",
+    "whatItMeans": "Simple explanation.",
+    "whatToEnter": "Simple instruction."
+  }}
+]
+
+Rules:
+- Focus strictly on fields specific to {form_name}.
+- Do NOT return a generic template if specific fields cannot be determined. If impossible to determine, return [].
+"""
+
+    try:
+        response = _client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=prompt,
+        )
+        raw_text = (response.text or "").strip()
+        if raw_text.startswith("```"):
+            raw_text = "\n".join(
+                l for l in raw_text.splitlines()
+                if not l.strip().startswith("```")
+            ).strip()
+
+        result = json.loads(raw_text)
+        if isinstance(result, list):
+            return result
+        return []
+    except Exception as e:
+        print(f"Gemini API error in generate_dynamic_field_guidance: {e}")
+        return []
+

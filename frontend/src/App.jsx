@@ -12,17 +12,13 @@ import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import FindForm from './pages/FindForm'
 import FormInformation from './pages/FormInformation'
-import FormFill from './pages/FormFill'
 import UploadForm from './pages/UploadForm'
 import FormAnalysis from './pages/FormAnalysis'
 import DocumentsPage from './pages/DocumentsPage'
-import ValidationPage from './pages/ValidationPage'
-import ReviewPage from './pages/ReviewPage'
-import FormComplete from './pages/FormComplete'
-import NotFound from './pages/NotFound'
 import MyFormsPage from './pages/MyFormsPage'
 import HelpPage from './pages/HelpPage'
 import AISaathiPage from './pages/AISaathiPage'
+import NotFound from './pages/NotFound'
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -70,24 +66,20 @@ function AppRoutes() {
           <Route path="/help"      element={<P><HelpPage /></P>} />
           <Route path="/ai-saathi" element={<P><AISaathiPage /></P>} />
 
-          {/* ── Find Form flow ── */}
+          {/* ── Find Form & Guidance ── */}
           <Route path="/find-form" element={<P><FindForm /></P>} />
           <Route path="/form/:id"  element={<P><FormInformation /></P>} />
 
-          {/* ── Upload flow ── */}
-          <Route path="/upload-form"          element={<P><UploadForm /></P>} />
-          <Route path="/form-analysis"        element={<P><FormAnalysis /></P>} />
-          <Route path="/form/upload/fill"       element={<P><FormFill /></P>} />
-          <Route path="/form/upload/validation" element={<P><ValidationPage /></P>} />
-          <Route path="/form/upload/review"     element={<P><ReviewPage /></P>} />
-          <Route path="/form/upload/complete"   element={<P><FormComplete /></P>} />
+          {/* ── Upload Form & Guidance ── */}
+          <Route path="/upload-form"   element={<P><UploadForm /></P>} />
+          <Route path="/form-analysis" element={<P><FormAnalysis /></P>} />
 
-          {/* ── Find Form filling flow ── */}
-          <Route path="/form/:id/fill"        element={<P><FormFill /></P>} />
-          <Route path="/form/:id/validation"  element={<P><ValidationPage /></P>} />
-          <Route path="/form/:id/review"      element={<P><ReviewPage /></P>} />
-          <Route path="/form/:id/complete"    element={<P><FormComplete /></P>} />
-          <Route path="/form/:id/explanation" element={<P><AISaathiPage /></P>} />
+          {/* ── Redirect legacy filling routes to guidance ── */}
+          <Route path="/form/:id/fill"        element={<Navigate to="/form/:id" replace />} />
+          <Route path="/form/:id/validation"  element={<Navigate to="/form/:id" replace />} />
+          <Route path="/form/:id/review"      element={<Navigate to="/form/:id" replace />} />
+          <Route path="/form/:id/complete"    element={<Navigate to="/form/:id" replace />} />
+          <Route path="/form/upload/*"        element={<Navigate to="/upload-form" replace />} />
 
           {/* ── 404 ── */}
           <Route path="*" element={<NotFound />} />

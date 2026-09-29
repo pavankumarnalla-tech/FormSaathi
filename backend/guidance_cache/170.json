@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Applicant Name",
+    "whatItMeans": "The full name of the citizen applying for the new water connection.",
+    "whatToEnter": "Enter your full name as recorded on official government identification documents."
+  },
+  {
+    "name": "Father's or Husband's Name",
+    "whatItMeans": "The name of the applicant's father or spouse.",
+    "whatToEnter": "Enter the name of your father or husband."
+  },
+  {
+    "name": "Gender",
+    "whatItMeans": "The gender of the applicant.",
+    "whatToEnter": "Select or enter your gender."
+  },
+  {
+    "name": "Mobile Number",
+    "whatItMeans": "The active contact telephone number of the applicant for receiving updates and OTPs.",
+    "whatToEnter": "Enter your 10-digit mobile number."
+  },
+  {
+    "name": "Email ID",
+    "whatItMeans": "The electronic mail address of the applicant.",
+    "whatToEnter": "Enter your valid email address."
+  },
+  {
+    "name": "Property Assessment Number / PTIN",
+    "whatItMeans": "The unique property tax identification number assigned to the building or plot by the municipal corporation.",
+    "whatToEnter": "Enter the property assessment number or PTIN as printed on your property tax receipt."
+  },
+  {
+    "name": "Door Number",
+    "whatItMeans": "The official municipal door or house number of the premises.",
+    "whatToEnter": "Enter your exact door or house number."
+  },
+  {
+    "name": "Locality / Street Name",
+    "whatItMeans": "The specific street, colony, or locality where the property is located.",
+    "whatToEnter": "Enter the name of your street, colony, or residential locality."
+  },
+  {
+    "name": "Ward Number",
+    "whatItMeans": "The municipal ward number under Warangal Municipal Corporation where the property is situated.",
+    "whatToEnter": "Enter the municipal ward number."
+  },
+  {
+    "name": "Pin Code",
+    "whatItMeans": "The postal index number of the property location.",
+    "whatToEnter": "Enter the 6-digit postal pin code."
+  },
+  {
+    "name": "Type of Connection",
+    "whatItMeans": "The category of water connection being requested, such as domestic or commercial.",
+    "whatToEnter": "Select the appropriate water connection category (e.g., Domestic, Commercial)."
+  },
+  {
+    "name": "Pipe Size Required",
+    "whatItMeans": "The diameter of the water supply pipe requested for the connection.",
+    "whatToEnter": "Select or enter the required pipe size in inches (e.g., 1/2 inch, 3/4 inch)."
+  }
+]

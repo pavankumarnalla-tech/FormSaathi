@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base
-import models.user  # Ensure User model is loaded before create_all
-from routes import form_analysis, ai_assistance, form_generate, auth
+import models.user                # Ensure User model is loaded before create_all
+import models.government_form     # Ensure GovernmentForm models are loaded
+from routes import form_analysis, ai_assistance, auth
 
 # Initialize DB tables on startup
 try:
@@ -12,7 +13,11 @@ try:
 except Exception as e:
     print(f"Warning: Database initialization error (make sure MySQL is running): {e}")
 
-app = FastAPI(title="Form Saathi Backend API", version="1.0.0")
+app = FastAPI(
+    title="Form Saathi Backend API",
+    version="3.0.0",
+    description="AI-powered Government Form Guidance and Discovery Platform API"
+)
 
 # Configure CORS for frontend access
 app.add_middleware(
@@ -23,12 +28,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routes
-app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
-app.include_router(form_analysis.router, prefix="/api/forms", tags=["Forms"])
-app.include_router(ai_assistance.router, prefix="/api/ai", tags=["AI Assistance"])
-app.include_router(form_generate.router, prefix="/api/forms", tags=["PDF Generation"])
+# Include active guidance routes
+app.include_router(auth.router,          prefix="/api/auth",  tags=["Authentication"])
+app.include_router(form_analysis.router, prefix="/api/forms", tags=["Document Understanding"])
+app.include_router(ai_assistance.router, prefix="/api/ai",    tags=["AI Saathi Guidance"])
 
 @app.get("/")
 def read_root():
-    return {"message": "Form Saathi API is running"}
+    return {
+        "message": "Form Saathi API is running",
+        "platform": "AI-powered Government Form Guidance & Discovery Platform"
+    }
+

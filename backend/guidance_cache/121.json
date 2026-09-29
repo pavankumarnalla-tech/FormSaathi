@@ -1,0 +1,127 @@
+[
+  {
+    "name": "Mandal (Addressed to Tahsildar)",
+    "whatItMeans": "The administrative mandal of the Tahsildar to whom the application is submitted.",
+    "whatToEnter": "Enter the name of the Mandal where you are submitting the application."
+  },
+  {
+    "name": "District (Addressed to Tahsildar)",
+    "whatItMeans": "The district corresponding to the Tahsildar's office.",
+    "whatToEnter": "Enter the name of your district."
+  },
+  {
+    "name": "Date",
+    "whatItMeans": "The date on which the application is being filled and submitted.",
+    "whatToEnter": "Enter the current date in DD / MM / YYYY format."
+  },
+  {
+    "name": "Applicant Name",
+    "whatItMeans": "The full legal name of the person applying for the income certificate.",
+    "whatToEnter": "Enter your full name as per official records."
+  },
+  {
+    "name": "Relation (S/o, D/o, W/o, H/o, F/o, C/o, with Name)",
+    "whatItMeans": "The name of your relative along with the relationship type.",
+    "whatToEnter": "Select the relationship type (Son of, Daughter of, etc.) and enter the full name of the relative."
+  },
+  {
+    "name": "Gender",
+    "whatItMeans": "The gender of the applicant.",
+    "whatToEnter": "Select either Male or Female."
+  },
+  {
+    "name": "Date of Birth",
+    "whatItMeans": "The birth date of the applicant.",
+    "whatToEnter": "Enter your date of birth."
+  },
+  {
+    "name": "Door No",
+    "whatItMeans": "The house or door number of the applicant's residential address.",
+    "whatToEnter": "Enter your house or door number."
+  },
+  {
+    "name": "Locality/ Land Mark",
+    "whatItMeans": "The local area, street, or nearby landmark of the residence.",
+    "whatToEnter": "Enter your street name, locality, or nearby landmark."
+  },
+  {
+    "name": "District (Address)",
+    "whatItMeans": "The district where the applicant resides.",
+    "whatToEnter": "Enter your residential district name."
+  },
+  {
+    "name": "Mandal (Address)",
+    "whatItMeans": "The mandal where the applicant resides.",
+    "whatToEnter": "Enter your residential mandal name."
+  },
+  {
+    "name": "Village",
+    "whatItMeans": "The village or town where the applicant resides.",
+    "whatToEnter": "Enter your village or town name."
+  },
+  {
+    "name": "Pin code",
+    "whatItMeans": "The postal PIN code of the residential address.",
+    "whatToEnter": "Enter the 6-digit postal PIN code."
+  },
+  {
+    "name": "Ration Card No",
+    "whatItMeans": "The identification number of the applicant's ration card.",
+    "whatToEnter": "Enter your ration card number if available."
+  },
+  {
+    "name": "Mobile No",
+    "whatItMeans": "The active mobile phone number of the applicant for communication.",
+    "whatToEnter": "Enter your 10-digit mobile number."
+  },
+  {
+    "name": "AADHAAR NO",
+    "whatItMeans": "The unique 12-digit Aadhaar identification number of the applicant.",
+    "whatToEnter": "Enter your 12-digit Aadhaar number."
+  },
+  {
+    "name": "Income from Land and Buildings",
+    "whatItMeans": "The monetary income earned from lands and real estate properties.",
+    "whatToEnter": "Enter the total annual income earned from land and buildings in Rupees."
+  },
+  {
+    "name": "By Business",
+    "whatItMeans": "The monetary income earned from running a business.",
+    "whatToEnter": "Enter the total annual income earned from business in Rupees."
+  },
+  {
+    "name": "Total Income of husband and Wife",
+    "whatItMeans": "The combined income of both the husband and wife.",
+    "whatToEnter": "Enter the combined total income of husband and wife in Rupees."
+  },
+  {
+    "name": "Daily wage Earner",
+    "whatItMeans": "The monetary income earned through daily wage work.",
+    "whatToEnter": "Enter the total income earned as a daily wage earner in Rupees."
+  },
+  {
+    "name": "Income from Others Source\u2019s",
+    "whatItMeans": "Any other miscellaneous income not covered by the above categories.",
+    "whatToEnter": "Enter the total income from any other sources in Rupees."
+  },
+  {
+    "name": "Total",
+    "whatItMeans": "The sum of all income sources mentioned in the form.",
+    "whatToEnter": "Enter the final calculated sum of all income sources in Rupees."
+  },
+  {
+    "name": "Purpose of Certificate",
+    "whatItMeans": "The specific reason or objective for which the income certificate is required.",
+    "whatToEnter": "Enter the reason for applying (e.g., scholarship, welfare scheme)."
+  },
+  {
+    "name": "Parents Signature",
+    "whatItMeans": "The physical signature of the applicant's parent.",
+    "whatToEnter": "Have your parent sign in the designated space if required."
+  },
+  {
+    "name": "Signature of the Applicant",
+    "whatItMeans": "The physical signature of the person applying for the certificate.",
+    "whatToEnter": "Sign your name to confirm the details provided are correct."
+  }
+]

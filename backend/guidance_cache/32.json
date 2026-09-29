@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Applicant Name",
+    "whatItMeans": "The full legal name of the person or entity applying for the new electricity connection.",
+    "whatToEnter": "Enter your full name as appearing on your official government-issued ID."
+  },
+  {
+    "name": "Father's/Spouse's Name",
+    "whatItMeans": "The name of the applicant's father or spouse for official record and identification purposes.",
+    "whatToEnter": "Enter the full name of your father or spouse."
+  },
+  {
+    "name": "Contact Number",
+    "whatItMeans": "The primary mobile number of the applicant for receiving updates and verification calls.",
+    "whatToEnter": "Enter a valid 10-digit mobile number."
+  },
+  {
+    "name": "Email ID",
+    "whatItMeans": "The electronic mail address of the applicant for digital communication and billing.",
+    "whatToEnter": "Enter your current and active email address."
+  },
+  {
+    "name": "Service Connection Address",
+    "whatItMeans": "The exact physical location where the new electricity connection is required.",
+    "whatToEnter": "Enter the complete postal address including plot number, street, locality, landmark, and pincode."
+  },
+  {
+    "name": "Category of Connection",
+    "whatItMeans": "The tariff category under which electricity will be consumed (e.g., Domestic, Commercial, Industrial).",
+    "whatToEnter": "Select the appropriate category for your electricity usage."
+  },
+  {
+    "name": "Requested Load (kW/HP)",
+    "whatItMeans": "The total electrical load capacity requested for the new connection.",
+    "whatToEnter": "Enter the required load in kilowatts (kW) or horsepower (HP) based on your appliance requirements."
+  },
+  {
+    "name": "Proof of Identity",
+    "whatItMeans": "An official government document verifying the identity of the applicant.",
+    "whatToEnter": "Provide details and upload a copy of a valid ID proof such as Aadhaar Card, Voter ID, or PAN Card."
+  },
+  {
+    "name": "Proof of Ownership / Occupancy",
+    "whatItMeans": "A legal document establishing the applicant's ownership or lawful occupancy of the premises.",
+    "whatToEnter": "Provide details and upload a copy of the property tax receipt, sale deed, or valid rent agreement."
+  }
+]

@@ -3,62 +3,84 @@ import { useNavigate } from 'react-router-dom';
 
 const MyFormsPage = () => {
   const navigate = useNavigate();
-  const [forms, setForms] = useState([]);
+  const [savedForms, setSavedForms] = useState([]);
 
   useEffect(() => {
+    loadSavedForms();
+  }, []);
+
+  const loadSavedForms = () => {
     try {
-      const stored = localStorage.getItem('formSaathi_myForms');
+      const stored = localStorage.getItem('formSaathi_savedForms');
       if (stored) {
-        setForms(JSON.parse(stored));
+        setSavedForms(JSON.parse(stored));
+      } else {
+        setSavedForms([]);
       }
     } catch (e) {
-      console.error('Failed to load my forms', e);
+      console.error('Failed to load saved forms', e);
     }
-  }, []);
+  };
+
+  const handleRemoveSaved = (e, formId) => {
+    e.stopPropagation();
+    try {
+      const updated = savedForms.filter(f => f.id !== formId);
+      localStorage.setItem('formSaathi_savedForms', JSON.stringify(updated));
+      setSavedForms(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="container py-5">
       <div className="d-flex align-items-center justify-content-between mb-4">
-        <h2 className="fw-bold mb-0">My Forms</h2>
+        <div>
+          <h2 className="fw-bold mb-1">Saved Forms & Services</h2>
+          <p className="text-muted small mb-0">Quick access to official guidance & document requirements for your bookmarked forms.</p>
+        </div>
         <button className="btn btn-outline-secondary rounded-pill px-4" onClick={() => navigate('/dashboard')}>
-          <i className="bi bi-arrow-left me-2"></i>Back
+          <i className="bi bi-arrow-left me-2"></i>Dashboard
         </button>
       </div>
 
-      {forms.length === 0 ? (
+      {savedForms.length === 0 ? (
         <div className="text-center py-5 bg-white rounded-4 shadow-sm">
-          <i className="bi bi-file-earmark-text display-1 text-muted mb-3 d-block"></i>
-          <h4 className="fw-bold">No forms yet</h4>
-          <p className="text-muted-brand mb-4">You haven't started or completed any forms recently.</p>
+          <i className="bi bi-bookmark-star display-1 text-muted mb-3 d-block"></i>
+          <h4 className="fw-bold">No saved forms yet</h4>
+          <p className="text-muted-brand mb-4">Save forms while exploring the catalogue to easily access guidance and instructions later.</p>
           <div className="d-flex justify-content-center gap-3">
-            <button className="btn-primary-brand" onClick={() => navigate('/find-form')}>Find a Form</button>
-            <button className="btn btn-outline-brand" onClick={() => navigate('/upload-form')}>Upload a Form</button>
+            <button className="btn-primary-brand px-4" onClick={() => navigate('/find-form')}>Explore Forms Catalogue</button>
           </div>
         </div>
       ) : (
         <div className="row g-4">
-          {forms.map((form, idx) => (
+          {savedForms.map((form, idx) => (
             <div key={idx} className="col-md-6 col-lg-4">
-              <div className="card border-0 rounded-4 shadow-sm h-100 feature-card p-4">
+              <div className="card border-0 rounded-4 shadow-sm h-100 p-4 bg-white d-flex flex-column">
                 <div className="d-flex justify-content-between align-items-start mb-3">
-                  <div className="icon-wrapper bg-secondary-brand text-primary-brand mb-0">
-                    <i className="bi bi-file-earmark-check"></i>
+                  <div className="bg-primary-brand text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                    <i className="bi bi-bookmark-fill"></i>
                   </div>
-                  <span className={`badge ${form.status === 'Completed' ? 'bg-success' : 'bg-warning text-dark'}`}>
-                    {form.status}
-                  </span>
+                  <button
+                    className="btn btn-sm btn-link text-danger text-decoration-none p-0"
+                    title="Remove from Saved Forms"
+                    onClick={(e) => handleRemoveSaved(e, form.id)}
+                  >
+                    <i className="bi bi-trash"></i> Remove
+                  </button>
                 </div>
                 <h5 className="fw-bold mb-1">{form.name}</h5>
-                <p className="text-muted small mb-3">Updated: {new Date(form.updatedAt).toLocaleDateString()}</p>
+                <p className="text-muted small mb-3">
+                  <i className="bi bi-building me-1"></i>{form.department || 'Government Department'}
+                </p>
                 <div className="mt-auto pt-3 border-top">
-                  <button className="btn btn-sm btn-outline-brand w-100 rounded-pill" onClick={() => {
-                      if(form.id === 'upload') {
-                          navigate('/form/upload/fill', { state: { formValues: form.values, formMeta: {name: form.name, id: 'upload'}, analysisData: form.analysisData, startSection: 0 } });
-                      } else {
-                          navigate(`/form/${form.id}/fill`, { state: { formValues: form.values, formMeta: {name: form.name, id: form.id}, startSection: 0 } });
-                      }
-                  }}>
-                    {form.status === 'Completed' ? 'View / Edit Again' : 'Continue Filling'}
+                  <button
+                    className="btn btn-outline-brand w-100 rounded-pill py-2 fw-medium"
+                    onClick={() => navigate(`/form/${form.id}`)}
+                  >
+                    <i className="bi bi-eye me-2"></i>View Form Guidance
                   </button>
                 </div>
               </div>

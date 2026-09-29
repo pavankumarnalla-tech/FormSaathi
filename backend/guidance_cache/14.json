@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Existing Ration Card Number",
+    "whatItMeans": "The unique identification number printed on the applicant's current ration card.",
+    "whatToEnter": "Enter the existing ration card number accurately as shown on the card."
+  },
+  {
+    "name": "Head of the Family Name",
+    "whatItMeans": "The full name of the primary head of the household registered on the ration card.",
+    "whatToEnter": "Enter the full name of the head of the family as per official records."
+  },
+  {
+    "name": "Current Address",
+    "whatItMeans": "The residential address where the family is currently residing and registered.",
+    "whatToEnter": "Enter the complete current residential address including house number, locality, and landmark."
+  },
+  {
+    "name": "New Address",
+    "whatItMeans": "The new residential address to which the ration card is being transferred.",
+    "whatToEnter": "Enter the complete new address where the family has shifted or intends to shift."
+  },
+  {
+    "name": "Reason for Transfer",
+    "whatItMeans": "The official cause or justification for shifting the ration card location.",
+    "whatToEnter": "Select or state the reason for transfer, such as job relocation, change of residence, or marriage."
+  },
+  {
+    "name": "District",
+    "whatItMeans": "The administrative district associated with the new residential address.",
+    "whatToEnter": "Select the name of the new district within Telangana."
+  },
+  {
+    "name": "Mandal",
+    "whatItMeans": "The administrative sub-district or mandal of the new location.",
+    "whatToEnter": "Select the appropriate mandal name for the new address."
+  },
+  {
+    "name": "Village or Ward",
+    "whatItMeans": "The specific village or municipal ward of the destination area.",
+    "whatToEnter": "Enter the name of the village or municipal ward for the new residence."
+  },
+  {
+    "name": "Fair Price Shop Number",
+    "whatItMeans": "The identification number of the ration shop attached to the new locality.",
+    "whatToEnter": "Enter the desired Fair Price Shop (FPS) number of the new area if known."
+  },
+  {
+    "name": "List of Family Members",
+    "whatItMeans": "The details of all individuals currently listed on the ration card.",
+    "whatToEnter": "Provide the names, ages, and relationship to the head of all family members undergoing transfer."
+  },
+  {
+    "name": "Applicant Mobile Number",
+    "whatItMeans": "The active contact number of the applicant for receiving official status updates.",
+    "whatToEnter": "Enter a valid 10-digit mobile number."
+  }
+]

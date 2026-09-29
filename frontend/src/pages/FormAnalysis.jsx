@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AISaathiPanel from '../components/AISaathiPanel';
 
 const ANALYSIS_STAGES = [
   "Reading document...",
   "Detecting form structure...",
-  "Identifying fields...",
-  "Preparing analysis..."
+  "Extracting required documents...",
+  "Generating field guidance..."
 ];
 
 const FormAnalysis = () => {
@@ -22,8 +23,10 @@ const FormAnalysis = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [stage, setStage]         = useState('');
   const [error, setError]         = useState(null);
+  const [aiField, setAiField]     = useState(null);
 
   const stageTimerRef = useRef(null);
+  const language = localStorage.getItem('formSaathiLanguage') || 'English';
 
   useEffect(() => {
     if (!result) {
@@ -33,7 +36,26 @@ const FormAnalysis = () => {
 
   if (!result) return null;
 
-  const { formSummary, sections, isDemoMode } = result;
+  // Extract guidance schema fields (supports both new guidance format and legacy fallback)
+  const formTitle = result.formTitle || result.formSummary?.name || file?.name || 'Uploaded Form';
+  const purpose = result.purpose || 'Official application form analyzed from uploaded document.';
+  const requiredDocuments = result.requiredDocuments || [];
+  const importantInstructions = result.importantInstructions || [];
+
+  // Standardize fieldsGuidance list
+  let fieldsGuidance = result.fieldsGuidance || [];
+  if (!fieldsGuidance.length && result.sections) {
+    // Map legacy sections to guidance format if needed
+    result.sections.forEach(sec => {
+      (sec.fields || []).forEach(f => {
+        fieldsGuidance.push({
+          name: f.name || f.label || 'Field',
+          whatItMeans: f.help || `Official field for ${f.name || 'entry'}.`,
+          whatToEnter: `Enter ${f.name || 'details'} as specified on the form.`
+        });
+      });
+    });
+  }
 
   /* ── Analyze Again ───────────────────────────────────── */
   const handleAnalyzeAgain = async () => {
@@ -44,7 +66,6 @@ const FormAnalysis = () => {
     setAnalyzing(true);
     setError(null);
 
-    // Cycle through visual stages
     let stageIdx = 0;
     setStage(ANALYSIS_STAGES[stageIdx]);
     stageTimerRef.current = setInterval(() => {
@@ -77,27 +98,7 @@ const FormAnalysis = () => {
 
   /* ── Upload Another Form ─────────────────────────────── */
   const handleUploadAnother = () => {
-    // Clear both file and result, go fresh
     navigate('/upload-form', { replace: true, state: {} });
-  };
-
-  /* ── Continue to Form Saathi ─────────────────────────── */
-  const handleContinue = () => {
-    navigate('/form/upload/fill', { state: { analysisData: result } });
-  };
-
-  /* ── Status badge helper ─────────────────────────────── */
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'found':
-        return <span className="badge bg-success rounded-pill px-3 py-2"><i className="bi bi-check-circle me-1"></i>Found</span>;
-      case 'empty':
-        return <span className="badge bg-secondary rounded-pill px-3 py-2"><i className="bi bi-circle me-1"></i>Empty</span>;
-      case 'review':
-        return <span className="badge bg-warning text-dark rounded-pill px-3 py-2"><i className="bi bi-exclamation-triangle me-1"></i>Review</span>;
-      default:
-        return <span className="badge bg-light text-dark rounded-pill px-3 py-2">{status}</span>;
-    }
   };
 
   /* ── Analyzing overlay ───────────────────────────────── */
@@ -116,9 +117,8 @@ const FormAnalysis = () => {
     );
   }
 
-  /* ── Main render ─────────────────────────────────────── */
   return (
-    <div className="container py-5">
+    <div className="container py-4 py-md-5">
 
       {/* Breadcrumbs */}
       <nav aria-label="breadcrumb" className="mb-4">
@@ -129,24 +129,17 @@ const FormAnalysis = () => {
           <li className="breadcrumb-item">
             <button className="btn btn-link p-0 text-decoration-none text-muted" onClick={() => navigate('/upload-form')}>Upload a Form</button>
           </li>
-          <li className="breadcrumb-item active" aria-current="page">Analysis Result</li>
+          <li className="breadcrumb-item active" aria-current="page">Form Analysis & Guidance</li>
         </ol>
       </nav>
 
-      {/* Title bar */}
-      <div className="mb-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
-        <div>
-          <h1 className="fw-bold mb-2">Form Analysis</h1>
-          <p className="lead text-muted-brand mb-0">Information detected from your uploaded form.</p>
-          {file && <p className="text-muted small mt-1"><i className="bi bi-paperclip me-1"></i>{file.name}</p>}
-        </div>
-        {isDemoMode && (
-          <div className="mt-3 mt-md-0">
-            <span className="badge bg-warning text-dark fs-6 px-3 py-2 shadow-sm">
-              <i className="bi bi-cone-striped me-2"></i>DEMO MODE ACTIVE
-            </span>
-          </div>
-        )}
+      {/* Header */}
+      <div className="mb-4">
+        <span className="badge rounded-pill bg-primary-brand text-white px-3 py-2 mb-2">
+          <i className="bi bi-file-earmark-check me-1"></i>Uploaded Form Guidance
+        </span>
+        <h1 className="fw-bold mb-1">{formTitle}</h1>
+        {file && <p className="text-muted small mb-0"><i className="bi bi-paperclip me-1"></i>Source Document: {file.name}</p>}
       </div>
 
       {/* Error alert */}
@@ -167,124 +160,176 @@ const FormAnalysis = () => {
       )}
 
       <div className="row g-4">
-        {/* Left column — summary */}
-        <div className="col-lg-4">
-          <div className="card border-0 rounded-4 shadow-sm bg-primary-brand text-white p-4 mb-4">
-            <h5 className="fw-bold opacity-75 mb-3 text-uppercase small">Form Identified</h5>
-            <h3 className="fw-bold mb-3">{formSummary.name}</h3>
-            <div className="d-flex align-items-center">
-              <i className="bi bi-robot fs-4 me-2"></i>
-              <span className="fw-medium">Confidence: {formSummary.confidence}</span>
-            </div>
-          </div>
-
-          <div className="card border-0 rounded-4 shadow-sm p-4 mb-4 bg-white">
-            <h5 className="fw-bold border-bottom pb-3 mb-4">Completion Summary</h5>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <span className="text-muted fw-medium">Total Fields</span>
-              <span className="fw-bold fs-5">{formSummary.totalFields}</span>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <span className="text-success fw-medium"><i className="bi bi-check-circle-fill me-2"></i>Found</span>
-              <span className="fw-bold fs-5 text-success">{formSummary.completedFields}</span>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <span className="text-secondary fw-medium"><i className="bi bi-circle me-2"></i>Empty</span>
-              <span className="fw-bold fs-5 text-secondary">{formSummary.emptyFields}</span>
-            </div>
-            <div className="d-flex justify-content-between align-items-center">
-              <span className="fw-medium" style={{ color: '#b45309' }}><i className="bi bi-exclamation-triangle-fill me-2"></i>Needs Review</span>
-              <span className="fw-bold fs-5" style={{ color: '#b45309' }}>{formSummary.needsReview}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Right column — fields */}
+        {/* Main Content */}
         <div className="col-lg-8">
+
+          {/* 1. About This Form */}
           <div className="card border-0 rounded-4 shadow-sm p-4 p-md-5 mb-4 bg-white">
-            <h4 className="fw-bold mb-4">Detected Fields</h4>
-            <div className="accordion border-0" id="fieldsAccordion">
-              {sections.map((section, idx) => (
-                <div className="accordion-item border-0 mb-3 bg-light rounded-4 overflow-hidden" key={idx}>
-                  <h2 className="accordion-header">
-                    <button
-                      className="accordion-button fw-bold bg-light shadow-none"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target={`#collapse${idx}`}
-                      aria-expanded={idx === 0 ? 'true' : 'false'}
-                    >
-                      {section.name}
-                    </button>
-                  </h2>
-                  <div id={`collapse${idx}`} className={`accordion-collapse collapse ${idx === 0 ? 'show' : ''}`}>
-                    <div className="accordion-body pt-0 px-4 pb-4">
-                      <div className="table-responsive">
-                        <table className="table table-borderless mb-0 align-middle">
-                          <tbody>
-                            {section.fields.map((field, fIdx) => (
-                              <tr key={fIdx} className="border-bottom">
-                                <td className="py-3" style={{ width: '40%' }}>
-                                  <div className="fw-bold text-dark">{field.name}</div>
-                                  <div className="small text-muted">{field.help}</div>
-                                </td>
-                                <td className="py-3" style={{ width: '40%' }}>
-                                  {field.value
-                                    ? <span className="fw-medium text-primary-brand">{field.value}</span>
-                                    : <span className="text-muted fst-italic">--</span>}
-                                </td>
-                                <td className="py-3 text-end" style={{ width: '20%' }}>
-                                  {getStatusBadge(field.status)}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+            <h5 className="fw-bold text-primary-brand border-bottom pb-3 mb-4">
+              <i className="bi bi-file-earmark-text me-2"></i>About This Form
+            </h5>
+            <p className="lead mb-0">{purpose}</p>
+          </div>
+
+          {/* 2. Required Documents */}
+          <div className="card border-0 rounded-4 shadow-sm p-4 p-md-5 mb-4 bg-white">
+            <h5 className="fw-bold text-primary-brand border-bottom pb-3 mb-4">
+              <i className="bi bi-folder-check me-2"></i>Required Documents
+            </h5>
+            {requiredDocuments.length > 0 ? (
+              <ul className="list-unstyled mb-0">
+                {requiredDocuments.map((doc, idx) => (
+                  <li key={idx} className="mb-3 d-flex align-items-start">
+                    <i className="bi bi-check-square-fill text-success me-3 mt-1 fs-5"></i>
+                    <span className="text-dark fw-medium">{doc}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted fst-italic mb-0">
+                <i className="bi bi-info-circle me-2"></i>No specific required documents explicitly listed on this uploaded form.
+              </p>
+            )}
+          </div>
+
+          {/* 3. Field-by-Field Guidance */}
+          <div className="card border-0 rounded-4 shadow-sm p-4 p-md-5 mb-4 bg-white">
+            <div className="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
+              <div>
+                <h5 className="fw-bold text-primary-brand mb-1">
+                  <i className="bi bi-card-checklist me-2"></i>Field-by-Field Guidance
+                </h5>
+                <p className="text-muted small mb-0">Fields detected from your uploaded document.</p>
+              </div>
+              {fieldsGuidance.length > 0 && (
+                <span className="badge bg-secondary-brand text-primary-brand rounded-pill px-3 py-2">
+                  {fieldsGuidance.length} Fields Detected
+                </span>
+              )}
+            </div>
+
+            {fieldsGuidance.length > 0 ? (
+              <div className="d-flex flex-column gap-3">
+                {fieldsGuidance.map((field, idx) => (
+                  <div key={idx} className="p-4 rounded-3 border bg-light">
+                    <div className="d-flex align-items-center justify-content-between mb-2">
+                      <h6 className="fw-bold mb-0 text-dark">{field.name}</h6>
+                      <button
+                        className="btn btn-sm btn-outline-brand rounded-pill px-3"
+                        onClick={() => setAiField({ name: field.name, description: field.whatItMeans })}
+                      >
+                        <i className="bi bi-robot me-1"></i>Ask AI Saathi
+                      </button>
+                    </div>
+
+                    <div className="row g-3 mt-1">
+                      <div className="col-md-6">
+                        <div className="p-3 bg-white rounded border-start border-primary border-3">
+                          <small className="text-uppercase fw-bold text-primary d-block mb-1">
+                            <i className="bi bi-info-circle me-1"></i>What it means
+                          </small>
+                          <p className="mb-0 small text-muted-brand">{field.whatItMeans}</p>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="p-3 bg-white rounded border-start border-success border-3">
+                          <small className="text-uppercase fw-bold text-success d-block mb-1">
+                            <i className="bi bi-pencil me-1"></i>What to enter
+                          </small>
+                          <p className="mb-0 small text-dark fw-medium">{field.whatToEnter}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            ) : (
+              <div className="alert alert-light border rounded-3 p-4 text-center mb-0">
+                <i className="bi bi-info-circle fs-3 text-muted mb-2 d-block"></i>
+                <p className="text-muted mb-0 fw-medium">No fields detected on this uploaded form.</p>
+              </div>
+            )}
+          </div>
+
+          {/* 4. Important Instructions */}
+          {importantInstructions.length > 0 && (
+            <div className="card border-0 rounded-4 shadow-sm p-4 p-md-5 mb-4 bg-white">
+              <h5 className="fw-bold text-primary-brand border-bottom pb-3 mb-4">
+                <i className="bi bi-list-task me-2"></i>Important Instructions
+              </h5>
+              <ol className="mb-0 ps-3">
+                {importantInstructions.map((inst, idx) => (
+                  <li key={idx} className="mb-2 text-muted-brand">{inst}</li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {/* Disclaimer */}
+          <div className="alert border-0 rounded-4 py-3 px-4 shadow-sm" style={{ background: '#fef9ec' }}>
+            <div className="d-flex align-items-start">
+              <i className="bi bi-shield-exclamation text-warning fs-4 me-3 flex-shrink-0 mt-1"></i>
+              <div>
+                <strong className="text-dark small d-block mb-1">Independent Guidance Platform Disclaimer</strong>
+                <small className="text-muted">
+                  Form Saathi provides guidance based on document analysis. Always verify official submission requirements with the appropriate government department.
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar Actions */}
+        <div className="col-lg-4">
+          <div className="card border-0 rounded-4 shadow-sm p-4 mb-4 bg-white position-sticky" style={{ top: '100px' }}>
+            <h6 className="fw-bold mb-3">Form Guidance Actions</h6>
+
+            <button
+              className="btn btn-outline-brand w-100 py-3 mb-3 fw-medium rounded-pill"
+              onClick={() => navigate('/ai-saathi', { state: { formName: formTitle } })}
+            >
+              <i className="bi bi-robot me-2"></i>Ask AI Saathi About This Form
+            </button>
+
+            <button
+              className="btn-primary-brand w-100 py-3 mb-3 fw-bold shadow-sm"
+              onClick={() => navigate('/find-form')}
+            >
+              <i className="bi bi-search me-2"></i>Explore Official Forms Catalogue
+            </button>
+
+            <div className="border-top pt-4 mt-2">
+              <button
+                className="btn btn-outline-secondary w-100 py-2 mb-2 rounded-pill small"
+                onClick={handleAnalyzeAgain}
+                disabled={!file}
+              >
+                <i className="bi bi-arrow-repeat me-2"></i>Re-analyze Uploaded File
+              </button>
+
+              <button
+                className="btn btn-outline-secondary w-100 py-2 rounded-pill small"
+                onClick={handleUploadAnother}
+              >
+                <i className="bi bi-upload me-2"></i>Upload Another Form
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="row mt-3 mb-5">
-        <div className="col-12 d-flex flex-column flex-sm-row justify-content-center gap-3 align-items-center flex-wrap">
-          <div className="text-center">
-            <button
-              className="btn btn-outline-secondary px-4 py-3 rounded-pill fw-medium w-100"
-              onClick={handleUploadAnother}
-            >
-              <i className="bi bi-upload me-2"></i>Upload Another Form
-            </button>
-            <div className="text-muted small mt-1">Start with a different file</div>
-          </div>
-          <div className="text-center">
-            <button
-              className="btn btn-outline-brand px-4 py-3 fw-medium w-100"
-              onClick={handleAnalyzeAgain}
-              disabled={!file}
-              title={!file ? "No file available to analyze again" : "Retry analysis of this file"}
-            >
-              <i className="bi bi-arrow-repeat me-2"></i>Analyze Again
-            </button>
-            <div className="text-muted small mt-1">Retry analysis of {file ? `"${file.name}"` : 'this file'}</div>
-          </div>
-          <div className="text-center">
-            <button
-              className="btn-primary-brand px-5 py-3 fw-bold fs-5 shadow-sm w-100"
-              onClick={handleContinue}
-            >
-              Continue to Form Saathi <i className="bi bi-arrow-right ms-2"></i>
-            </button>
-            <div className="text-muted small mt-1">Fill the form with AI assistance</div>
-          </div>
+      {/* AI Saathi Modal Panel when triggered */}
+      {aiField && (
+        <div className="position-fixed bottom-0 end-0 p-3" style={{ zIndex: 1050, maxWidth: '400px' }}>
+          <AISaathiPanel
+            formName={formTitle}
+            sectionName="Uploaded Form Field Guidance"
+            field={aiField}
+            language={language}
+            onClose={() => setAiField(null)}
+          />
         </div>
-      </div>
-
+      )}
     </div>
   );
 };

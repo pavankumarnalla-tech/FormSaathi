@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Applicant Name",
+    "whatItMeans": "The full legal name of the person applying for the No Property Certificate.",
+    "whatToEnter": "Enter your full name as recorded in official government ID proofs like Aadhaar or Voter ID."
+  },
+  {
+    "name": "Father's or Husband's Name",
+    "whatItMeans": "The name of the applicant's father or husband for familial identification.",
+    "whatToEnter": "Enter the complete name of your father or husband."
+  },
+  {
+    "name": "Gender",
+    "whatItMeans": "The biological or recorded gender of the applicant.",
+    "whatToEnter": "Select your appropriate gender from the available options (Male, Female, Other)."
+  },
+  {
+    "name": "Date of Birth",
+    "whatItMeans": "The chronological age or birth date of the applicant.",
+    "whatToEnter": "Enter your date of birth in DD/MM/YYYY format."
+  },
+  {
+    "name": "Age",
+    "whatItMeans": "The completed years of age of the applicant as of the current date.",
+    "whatToEnter": "Enter your current age in numbers."
+  },
+  {
+    "name": "Applicant Address",
+    "whatItMeans": "The current residential location details of the applicant.",
+    "whatToEnter": "Enter your complete residential address including house number, street, locality, district, and pincode."
+  },
+  {
+    "name": "Contact Details",
+    "whatItMeans": "The telephone or mobile number used for official communication and updates regarding the application.",
+    "whatToEnter": "Enter your active 10-digit mobile number."
+  },
+  {
+    "name": "Aadhaar Number",
+    "whatItMeans": "The unique 12-digit identification number issued by UIDAI to residents of India.",
+    "whatToEnter": "Enter your 12-digit Aadhaar number."
+  },
+  {
+    "name": "Purpose of Certificate",
+    "whatItMeans": "The official reason or scheme for which the No Property Certificate is required.",
+    "whatToEnter": "Specify clearly why you need the No Property Certificate (e.g., bank loan, welfare scheme, legal requirement)."
+  },
+  {
+    "name": "Details of Family Members",
+    "whatItMeans": "Information regarding the dependents or family members associated with the applicant.",
+    "whatToEnter": "Provide the names and relationship details of your family members as applicable."
+  },
+  {
+    "name": "Delivery Type",
+    "whatItMeans": "The preferred mode of receiving the final certificate (e.g., manual or direct download via MeeSeva).",
+    "whatToEnter": "Select your preferred delivery mode for the certificate."
+  }
+]

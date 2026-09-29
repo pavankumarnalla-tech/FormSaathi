@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Employee Name",
+    "whatItMeans": "The full legal name of the government employee applying for the health card.",
+    "whatToEnter": "Enter your full name as it appears in official government records and service register."
+  },
+  {
+    "name": "Employee ID / PPO Number",
+    "whatItMeans": "The unique identification number assigned to the employee by the government department.",
+    "whatToEnter": "Enter your official employee ID or Pension Payment Order (PPO) number."
+  },
+  {
+    "name": "Designation",
+    "whatItMeans": "The official job title or position held by the employee in the government department.",
+    "whatToEnter": "Enter your current designation or post."
+  },
+  {
+    "name": "Department / Office Name",
+    "whatItMeans": "The specific government department or administrative office where the employee is currently working.",
+    "whatToEnter": "Enter the name of your department, division, and office location."
+  },
+  {
+    "name": "Date of Birth",
+    "whatItMeans": "The chronological birth date of the employee.",
+    "whatToEnter": "Enter your date of birth in DD/MM/YYYY format."
+  },
+  {
+    "name": "Date of Joining",
+    "whatItMeans": "The date on which the employee officially entered government service.",
+    "whatToEnter": "Enter your date of joining service in DD/MM/YYYY format."
+  },
+  {
+    "name": "Mobile Number",
+    "whatItMeans": "The primary contact number of the applicant for receiving updates and OTPs.",
+    "whatToEnter": "Enter your active 10-digit mobile number."
+  },
+  {
+    "name": "Email Address",
+    "whatItMeans": "The electronic mail address of the employee for official digital communication.",
+    "whatToEnter": "Enter your valid email address."
+  },
+  {
+    "name": "Residential Address",
+    "whatItMeans": "The permanent or current residential address of the employee.",
+    "whatToEnter": "Enter your complete house number, street, locality, district, and PIN code."
+  },
+  {
+    "name": "Family Member Details",
+    "whatItMeans": "The particulars of dependents (spouse, children, dependent parents) to be included in the health card.",
+    "whatToEnter": "Enter the name, relation, date of birth, and gender of each eligible dependent family member."
+  },
+  {
+    "name": "Aadhaar Number",
+    "whatItMeans": "The 12-digit unique identification number issued by UIDAI to the employee and dependents.",
+    "whatToEnter": "Enter the Aadhaar card numbers for the employee and all listed family members."
+  },
+  {
+    "name": "Basic Pay / Salary Details",
+    "whatItMeans": "The current salary structure or pay scale details used for employee health scheme grading.",
+    "whatToEnter": "Enter your current basic pay and pay level."
+  }
+]

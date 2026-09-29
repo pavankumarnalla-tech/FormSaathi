@@ -1,14 +1,23 @@
 import os
+import json
 import shutil
 import uuid
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from services.ai_service import analyze_form
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
+from typing import Optional
+from services.ai_service import analyze_form, generate_dynamic_field_guidance
 
 router = APIRouter()
 
-# Ensure temp directory exists
 TEMP_DIR = "temp_uploads"
 os.makedirs(TEMP_DIR, exist_ok=True)
+
+OFFICIAL_FORMS_DIR = os.path.join(os.path.dirname(__file__), "..", "official_forms", "telangana")
+os.makedirs(OFFICIAL_FORMS_DIR, exist_ok=True)
+
+GUIDANCE_CACHE_DIR = "guidance_cache"
+os.makedirs(GUIDANCE_CACHE_DIR, exist_ok=True)
 
 ALLOWED_TYPES = {
     "application/pdf",
@@ -29,7 +38,6 @@ async def analyze_uploaded_form(file: UploadFile = File(...)):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file was provided.")
 
-    # Normalise content-type (browsers sometimes send image/jpg)
     content_type = file.content_type or ""
     if content_type == "image/jpg":
         content_type = "image/jpeg"
@@ -37,23 +45,17 @@ async def analyze_uploaded_form(file: UploadFile = File(...)):
     if content_type not in ALLOWED_TYPES:
         raise HTTPException(
             status_code=400,
-            detail=(
-                f"Unsupported file type: '{content_type}'. "
-                "Please upload a PDF, JPG, or PNG file."
-            ),
+            detail=f"Unsupported file type: '{content_type}'. Please upload a PDF, JPG, or PNG file.",
         )
 
-    # Generate a safe temp file path
     file_ext = os.path.splitext(file.filename)[1].lower() or ".tmp"
     temp_filename = f"{uuid.uuid4()}{file_ext}"
     temp_path = os.path.join(TEMP_DIR, temp_filename)
 
     try:
-        # Save to disk temporarily
         with open(temp_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Size check
         file_size = os.path.getsize(temp_path)
         if file_size == 0:
             raise HTTPException(status_code=400, detail="The uploaded file is empty.")
@@ -63,14 +65,12 @@ async def analyze_uploaded_form(file: UploadFile = File(...)):
                 detail=f"File too large ({file_size // (1024*1024)} MB). Maximum allowed size is 10 MB.",
             )
 
-        # Analyse with Gemini
         result = analyze_form(temp_path, file.filename, content_type)
         return {"success": True, "data": result}
 
     except HTTPException:
         raise
     except ValueError as e:
-        # Descriptive errors from ai_service (config, quota, parse errors)
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(
@@ -80,3 +80,94 @@ async def analyze_uploaded_form(file: UploadFile = File(...)):
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
+
+
+# ── Raw Official PDF Serving Endpoint (ISSUE 1 FIX) ──────────────────────────
+@router.get("/raw-pdf/{filename}")
+def serve_raw_official_pdf(filename: str):
+    """
+    Serves exact unmodified original government PDF template stored locally.
+    Does NOT modify, overlay, or regenerate the PDF.
+    """
+    safe_filename = os.path.basename(filename)
+    pdf_path = os.path.join(OFFICIAL_FORMS_DIR, safe_filename)
+
+    if not os.path.exists(pdf_path):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Official form PDF '{filename}' is not stored locally."
+        )
+
+    return FileResponse(
+        path=pdf_path,
+        media_type="application/pdf",
+        filename=safe_filename
+    )
+
+
+# ── Form-Specific Guidance Endpoint (ISSUE 2 FIX) ─────────────────────────────
+class GuidanceRequest(BaseModel):
+    formId: int
+    formName: str
+    department: Optional[str] = ""
+    purpose: Optional[str] = ""
+    localPdfPath: Optional[str] = None
+
+
+@router.post("/guidance")
+def get_form_dynamic_guidance(req: GuidanceRequest):
+    """
+    Returns form-specific dynamic field guidance (name, whatItMeans, whatToEnter).
+    Checks guidance_cache/{formId}.json first. If not cached, analyzes PDF/metadata using Gemini,
+    caches the result on disk, and returns it.
+    """
+    cache_path = os.path.join(GUIDANCE_CACHE_DIR, f"{req.formId}.json")
+
+    # 1. Check disk cache
+    if os.path.exists(cache_path):
+        try:
+            with open(cache_path, "r", encoding="utf-8") as f:
+                cached_data = json.load(f)
+            return {"success": True, "cached": True, "fields": cached_data}
+        except Exception as e:
+            print(f"Failed to read cache for form {req.formId}: {e}")
+
+    # 2. Extract PDF text if local PDF exists
+    pdf_text = ""
+    if req.localPdfPath:
+        safe_filename = os.path.basename(req.localPdfPath)
+        pdf_file = os.path.join(OFFICIAL_FORMS_DIR, safe_filename)
+        if os.path.exists(pdf_file):
+            try:
+                from pypdf import PdfReader
+                reader = PdfReader(pdf_file)
+                extracted_pages = []
+                for p in reader.pages[:3]:
+                    txt = p.extract_text()
+                    if txt:
+                        extracted_pages.append(txt)
+                pdf_text = "\n".join(extracted_pages)
+            except Exception as e:
+                print(f"Error extracting PDF text for guidance: {e}")
+
+    # 3. Call Gemini for dynamic guidance
+    fields = []
+    try:
+        fields = generate_dynamic_field_guidance(
+            form_name=req.formName,
+            department=req.department or "",
+            purpose=req.purpose or "",
+            pdf_text=pdf_text
+        )
+    except Exception as e:
+        print(f"Error generating dynamic field guidance for form {req.formId}: {e}")
+
+    # 4. Save to disk cache if fields found
+    if fields:
+        try:
+            with open(cache_path, "w", encoding="utf-8") as f:
+                json.dump(fields, f, indent=2)
+        except Exception as e:
+            print(f"Failed to write cache for form {req.formId}: {e}")
+
+    return {"success": True, "cached": False, "fields": fields}

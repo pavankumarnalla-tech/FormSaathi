@@ -1,17 +1,273 @@
 /**
- * formFillDefinitions.js — Form Saathi Field Definitions
+ * formFillDefinitions.js — Form Saathi Field Guidance Definitions
  *
- * Fields are defined based on the standard requirements of each verified
- * Telangana government form as listed on the official MeeSeva / Telangana portal.
- *
- * RULE: Only include fields that are actually required by the official form.
- * RULE: Labels must match or clearly correspond to the original form label.
- * RULE: Do NOT invent fields that do not exist in the real form.
- *
- * Only FORM-type entries with status 'official-template-ready' have fill definitions.
+ * Provides field-by-field explanations (What it means / What to enter)
+ * for official Telangana & Central government forms.
  */
 
+export const getFormGuidance = (form) => {
+  if (!form) return [];
+
+  const formId = form.id;
+  const def = formFillDefinitions[formId];
+
+  // If specific section definitions exist for this form ID, convert to guidance format
+  if (def && def.sections) {
+    const guidanceList = [];
+    def.sections.forEach(section => {
+      section.fields.forEach(field => {
+        guidanceList.push({
+          sectionName: section.name,
+          name: field.name,
+          key: field.key,
+          type: field.type,
+          required: field.required,
+          whatItMeans: getWhatItMeans(field.name, field.description),
+          whatToEnter: getWhatToEnter(field.name, field.placeholder || field.description)
+        });
+      });
+    });
+    return guidanceList;
+  }
+
+  // Generic fallback guidance fields for standard government application forms
+  return getDefaultFormGuidance(form);
+};
+
+const getWhatItMeans = (fieldName, description) => {
+  const lower = fieldName.lower ? fieldName.lower() : String(fieldName).toLowerCase();
+  if (lower.includes('name')) return "The full legal name of the person applying for or receiving the official certificate.";
+  if (lower.includes('birth') || lower.includes('dob')) return "The official date on which the applicant was born.";
+  if (lower.includes('gender')) return "The applicant's gender identity as recorded in government identity documents.";
+  if (lower.includes('father') || lower.includes('husband')) return "The full legal name of the applicant's father (if unmarried) or husband (if married).";
+  if (lower.includes('aadhaar')) return "The unique 12-digit UID number issued by UIDAI for identity verification.";
+  if (lower.includes('income')) return "Total annual income earned by the applicant's family from all employment, business, or agricultural sources.";
+  if (lower.includes('purpose')) return "The specific reason for requesting this certificate (e.g. Higher Education, Scholarship, Fee Reimbursement, Govt Scheme).";
+  if (lower.includes('mobile') || lower.includes('phone')) return "An active 10-digit mobile phone number to receive official MeeSeva SMS updates.";
+  if (lower.includes('ration') || lower.includes('fsc')) return "The Food Security Card (FSC) or Ration Card number issued by the Civil Supplies department.";
+  if (lower.includes('address')) return "The full permanent residential location of the applicant in Telangana.";
+  if (lower.includes('district')) return "The administrative district of Telangana where the applicant resides.";
+  if (lower.includes('mandal')) return "The revenue mandal under whose jurisdiction the applicant's residence falls.";
+  if (lower.includes('village') || lower.includes('town')) return "The specific village, town, or municipal ward of residence.";
+  if (lower.includes('pincode')) return "The 6-digit postal index code for your area.";
+  if (lower.includes('caste') || lower.includes('category')) return "The official social category / community classification recognized by the government.";
+
+  return description || `Official field requiring ${fieldName.toLowerCase()} as specified on the government application form.`;
+};
+
+const getWhatToEnter = (fieldName, placeholder) => {
+  const lower = fieldName.lower ? fieldName.lower() : String(fieldName).toLowerCase();
+  if (lower.includes('name')) return "Enter your full name exactly as it appears on your Aadhaar card. Do not use initials or nicknames.";
+  if (lower.includes('birth') || lower.includes('dob')) return "Select or write your date of birth in DD/MM/YYYY format as shown on your Aadhaar or birth certificate.";
+  if (lower.includes('gender')) return "Select Male, Female, or Transgender as appropriate.";
+  if (lower.includes('father') || lower.includes('husband')) return "Enter the full name of father or husband without prefixing Sri / Mr.";
+  if (lower.includes('aadhaar')) return "Enter your 12-digit Aadhaar number without spaces.";
+  if (lower.includes('income')) return "Enter the total annual family income in Rupees based on your salary slip, IT returns, or FSC card.";
+  if (lower.includes('purpose')) return "State clearly why you need this document (e.g. 'Scholarship & Fee Reimbursement').";
+  if (lower.includes('mobile')) return "Enter your 10-digit mobile number registered with Aadhaar if possible.";
+  if (lower.includes('ration')) return "Enter your FSC / Ration card number if you have one.";
+  if (lower.includes('address')) return "Provide complete door number, street, landmark, and area name.";
+  if (lower.includes('district')) return "Select or type your official district name in Telangana.";
+  if (lower.includes('mandal')) return "Enter your local revenue mandal office area.";
+  if (lower.includes('village')) return "Enter your village or municipal locality name.";
+  if (lower.includes('pincode')) return "Enter the 6-digit postal code.";
+  if (lower.includes('caste')) return "Select your exact category (OC / BC-A / BC-B / BC-C / BC-D / BC-E / SC / ST).";
+
+  return placeholder || `Enter details for ${fieldName} as requested in the official form instructions.`;
+};
+
+const getDefaultFormGuidance = (form) => {
+  return [
+    {
+      sectionName: "Applicant Personal Details",
+      name: "Full Name of Applicant",
+      key: "fullName",
+      type: "text",
+      required: true,
+      whatItMeans: "The full legal name of the person applying for this government service.",
+      whatToEnter: "Enter your full name exactly as printed on your Aadhaar card."
+    },
+    {
+      sectionName: "Applicant Personal Details",
+      name: "Father's / Husband's Name",
+      key: "fatherName",
+      type: "text",
+      required: true,
+      whatItMeans: "The full name of the applicant's father or husband.",
+      whatToEnter: "Enter the legal full name of father or husband."
+    },
+    {
+      sectionName: "Applicant Personal Details",
+      name: "Date of Birth & Gender",
+      key: "dobGender",
+      type: "text",
+      required: true,
+      whatItMeans: "Official date of birth and gender classification.",
+      whatToEnter: "Provide date of birth (DD/MM/YYYY) and select gender."
+    },
+    {
+      sectionName: "Identity & Verification",
+      name: "Aadhaar UID Number",
+      key: "aadhaar",
+      type: "text",
+      required: true,
+      whatItMeans: "Your 12-digit national UIDAI identification number.",
+      whatToEnter: "Enter your 12-digit Aadhaar number for biometric verification at MeeSeva."
+    },
+    {
+      sectionName: "Identity & Verification",
+      name: "Mobile Contact Number",
+      key: "mobile",
+      type: "tel",
+      required: true,
+      whatItMeans: "Active mobile phone number for SMS application tracking.",
+      whatToEnter: "Provide a working 10-digit mobile number."
+    },
+    {
+      sectionName: "Address & Residence",
+      name: "Full Residential Address",
+      key: "address",
+      type: "textarea",
+      required: true,
+      whatItMeans: "The applicant's current permanent residential address in Telangana.",
+      whatToEnter: "Specify door number, street, locality, village/town, mandal, and district."
+    }
+  ];
+};
+
 export const formFillDefinitions = {
+
+  /* ── 121. Income General Application Form ──────────────────────────────────── */
+  121: {
+    sections: [
+      {
+        name: "Personal Information",
+        fields: [
+          {
+            name: "Full Name",
+            key: "fullName",
+            type: "text",
+            required: true,
+            description: "Enter your full legal name exactly as it appears on your Aadhaar card.",
+            placeholder: "e.g. Pavan Kumar Nalla"
+          },
+          {
+            name: "Date of Birth",
+            key: "dob",
+            type: "date",
+            required: true,
+            description: "Your date of birth as shown on your Aadhaar card."
+          },
+          {
+            name: "Gender",
+            key: "gender",
+            type: "radio",
+            required: true,
+            description: "Select your gender.",
+            options: ["Male", "Female", "Transgender / Other"]
+          },
+          {
+            name: "Father's / Husband's Name",
+            key: "fatherName",
+            type: "text",
+            required: true,
+            description: "Enter your father's or husband's name.",
+            placeholder: "e.g. Raju Nalla"
+          },
+          {
+            name: "Aadhaar Number",
+            key: "aadhaar",
+            type: "text",
+            required: true,
+            description: "Your 12-digit Aadhaar UID.",
+            placeholder: "XXXX XXXX XXXX"
+          }
+        ]
+      },
+      {
+        name: "Income & Application Details",
+        fields: [
+          {
+            name: "Total Annual Income (₹)",
+            key: "annualIncome",
+            type: "number",
+            required: true,
+            description: "Total annual family income from all sources.",
+            placeholder: "e.g. 150000"
+          },
+          {
+            name: "Purpose of Certificate",
+            key: "purpose",
+            type: "text",
+            required: true,
+            description: "Purpose for applying (Education, Scholarship, Fee Reimbursement, Govt Scheme).",
+            placeholder: "e.g. College Admission & Fee Reimbursement"
+          },
+          {
+            name: "Mobile Number",
+            key: "mobile",
+            type: "tel",
+            required: true,
+            description: "Your 10-digit mobile number.",
+            placeholder: "e.g. 9876543210"
+          },
+          {
+            name: "Ration Card Number",
+            key: "rationCard",
+            type: "text",
+            required: false,
+            description: "FSC / Ration Card Number if available.",
+            placeholder: "e.g. WAP123456789"
+          }
+        ]
+      },
+      {
+        name: "Address Information",
+        fields: [
+          {
+            name: "Village / Town",
+            key: "village",
+            type: "text",
+            required: true,
+            description: "Name of your village or locality.",
+            placeholder: "e.g. Hanamkonda"
+          },
+          {
+            name: "Mandal",
+            key: "mandal",
+            type: "text",
+            required: true,
+            description: "Name of your mandal.",
+            placeholder: "e.g. Hanamkonda Mandal"
+          },
+          {
+            name: "District",
+            key: "district",
+            type: "text",
+            required: true,
+            description: "Name of your district.",
+            placeholder: "e.g. Warangal Urban"
+          },
+          {
+            name: "Pincode",
+            key: "pincode",
+            type: "text",
+            required: true,
+            description: "6-digit postal pincode.",
+            placeholder: "e.g. 506001"
+          },
+          {
+            name: "Full Residential Address",
+            key: "address",
+            type: "textarea",
+            required: true,
+            description: "Door number, street name, landmark.",
+            placeholder: "Door No 1-2-3, Gandhi Nagar"
+          }
+        ]
+      }
+    ]
+  },
 
   /* ── 1. Income Certificate ──────────────────────────────────────────── */
   1: {
