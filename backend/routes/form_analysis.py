@@ -10,14 +10,24 @@ from services.ai_service import analyze_form, generate_dynamic_field_guidance
 
 router = APIRouter()
 
-TEMP_DIR = "temp_uploads"
-os.makedirs(TEMP_DIR, exist_ok=True)
+# ── Writable directories ──────────────────────────────────────────────────────
+# Vercel (and most serverless/read-only filesystems) only allow writes to /tmp.
+# Locally, /tmp works fine on Linux/macOS. On Windows dev machines the path is
+# still created inside the system temp area, so local development is unaffected.
+import tempfile as _tempfile
 
+_TMP_ROOT = os.path.join(_tempfile.gettempdir(), "formsaathi")
+
+TEMP_DIR         = os.path.join(_TMP_ROOT, "temp_uploads")
+GUIDANCE_CACHE_DIR = os.path.join(_TMP_ROOT, "guidance_cache")
+
+os.makedirs(TEMP_DIR, exist_ok=True)
+os.makedirs(GUIDANCE_CACHE_DIR, exist_ok=True)
+
+# OFFICIAL_FORMS_DIR lives inside the project bundle — it is only ever READ,
+# never written, so a read-only filesystem is not a problem here.
 OFFICIAL_FORMS_DIR = os.path.join(os.path.dirname(__file__), "..", "official_forms", "telangana")
 os.makedirs(OFFICIAL_FORMS_DIR, exist_ok=True)
-
-GUIDANCE_CACHE_DIR = "guidance_cache"
-os.makedirs(GUIDANCE_CACHE_DIR, exist_ok=True)
 
 ALLOWED_TYPES = {
     "application/pdf",
