@@ -52,8 +52,21 @@ const FindForm = () => {
     const matchesLevel     = selectedLevel !== 'ALL' ? form.governmentLevel === selectedLevel : true;
     const matchesType      = selectedType  !== 'ALL' ? form.serviceType     === selectedType  : true;
     
-    // Make the search box work for filtering forms by title/name ONLY.
-    const matchesSearch    = term === '' || form.name.toLowerCase().includes(term);
+    // Case-insensitive substring matching anywhere in name, category, department, description, purpose, keywords
+    const name = (form.name || '').toLowerCase();
+    const cat  = (form.categoryName || '').toLowerCase();
+    const dept = (form.department || '').toLowerCase();
+    const desc = (form.shortDescription || '').toLowerCase();
+    const purp = (form.purpose || '').toLowerCase();
+    const kw   = (form.keywords || []).map(k => (k || '').toLowerCase());
+
+    const matchesSearch = term === '' ||
+      name.includes(term) ||
+      cat.includes(term) ||
+      dept.includes(term) ||
+      desc.includes(term) ||
+      purp.includes(term) ||
+      kw.some(k => k.includes(term));
 
     return matchesCategory && matchesLevel && matchesType && matchesSearch;
   });
