@@ -65,7 +65,7 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li className="nav-item me-3 mb-2 mb-lg-0">
-                  <Link className="nav-link text-dark fw-medium" to="/language">
+                  <Link className="nav-link text-dark fw-medium" to="/language" state={{ from: location }}>
                     <i className="bi bi-globe me-1"></i> {getLanguageName(preferredLang)}
                   </Link>
                 </li>
@@ -81,7 +81,7 @@ const Navbar = () => {
             ) : (
               <>
                 <li className="nav-item me-3 mb-2 mb-lg-0">
-                  <Link className="nav-link text-dark fw-medium" to="/language">
+                  <Link className="nav-link text-dark fw-medium" to="/language" state={{ from: location }}>
                     <i className="bi bi-globe me-1"></i> Language
                   </Link>
                 </li>

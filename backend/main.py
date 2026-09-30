@@ -9,6 +9,12 @@ from routes import form_analysis, ai_assistance, auth
 # Initialize DB tables on startup
 try:
     Base.metadata.create_all(bind=engine)
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS provider VARCHAR(50) DEFAULT 'email';"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS provider_id VARCHAR(255);"))
+        conn.commit()
     print("Database tables initialized successfully.")
 except Exception as e:
     print(f"Warning: Database initialization error: {e}")

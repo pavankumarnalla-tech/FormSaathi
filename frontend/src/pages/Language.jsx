@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Language = () => {
   const [selectedLang, setSelectedLang] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   const languages = [
     { code: 'en', name: 'English', nativeName: 'English' },
@@ -26,7 +29,14 @@ const Language = () => {
   const handleContinue = () => {
     if (selectedLang) {
       localStorage.setItem('formSaathiLanguage', selectedLang);
-      navigate('/login');
+      
+      // Preserve auth state and return route if authenticated
+      if (isAuthenticated) {
+        const returnPath = location.state?.from?.pathname || '/dashboard';
+        navigate(returnPath, { replace: true });
+      } else {
+        navigate('/login', { replace: true });
+      }
     }
   };
 

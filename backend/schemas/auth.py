@@ -33,3 +33,9 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
+
+class GoogleAuthRequest(BaseModel):
+    credential: Optional[str] = Field(None, description="Google ID Token from GIS")
+    code: Optional[str] = Field(None, description="Google OAuth authorization code")
+    redirect_uri: Optional[str] = Field(None, description="Redirect URI used for OAuth code flow")
+

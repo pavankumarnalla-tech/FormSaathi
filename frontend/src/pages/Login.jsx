@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 
 const Login = () => {
   const [identifier, setIdentifier] = useState('');
@@ -8,8 +9,16 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login } = useAuth();
+  const { login, loginWithGoogle, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      const returnPath = location.state?.from?.pathname || '/dashboard';
+      navigate(returnPath, { replace: true });
+    }
+  }, [isAuthenticated, loading, navigate, location]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,6 +38,19 @@ const Login = () => {
     setIsLoading(true);
 
     const result = await login(identifier, password);
+    setIsLoading(false);
+
+    if (result.success) {
+      navigate('/dashboard');
+    } else {
+      setError(result.error);
+    }
+  };
+
+  const handleGoogleSuccess = async (credential) => {
+    setError('');
+    setIsLoading(true);
+    const result = await loginWithGoogle(credential);
     setIsLoading(false);
 
     if (result.success) {
@@ -107,6 +129,19 @@ const Login = () => {
                 )}
               </button>
             </form>
+
+            {/* OR Separator & Google Sign-In */}
+            <div className="d-flex align-items-center my-4">
+              <div className="flex-grow-1 border-bottom"></div>
+              <span className="px-3 text-muted small fw-bold text-uppercase">OR</span>
+              <div className="flex-grow-1 border-bottom"></div>
+            </div>
+
+            <GoogleSignInButton
+              onSuccess={handleGoogleSuccess}
+              onError={(err) => setError(err)}
+              isLoading={isLoading}
+            />
 
             <div className="text-center mt-3 border-top pt-4">
               <p className="text-muted-brand small mb-2">Don't have an account?</p>

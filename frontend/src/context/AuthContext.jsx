@@ -87,6 +87,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (credential, code, redirectUri) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/google`, {
+        credential,
+        code,
+        redirect_uri: redirectUri
+      });
+
+      const { access_token, user: userData } = response.data;
+      setToken(access_token);
+      setUser(userData);
+      return { success: true, user: userData };
+    } catch (err) {
+      const errorMsg = err.response?.data?.detail || 'Google authentication failed. Please try again.';
+      return { success: false, error: errorMsg };
+    }
+  };
+
   const logout = async () => {
     try {
       if (token) {
@@ -107,6 +125,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     register,
+    loginWithGoogle,
     logout
   };
 
