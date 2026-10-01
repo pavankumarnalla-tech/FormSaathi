@@ -6469,3 +6469,316 @@ export const forms = [
     ]
   }
 ];
+
+/**
+ * Form Saathi — Central Government Services (Verified Official Sources)
+ * Last Verified: 2026-10-01
+ * Only portals confirmed reachable at time of addition are included.
+ * DO NOT add any entry without a live-verified officialSourceUrl.
+ */
+export const centralGovernmentForms = [
+  {
+    "id": 10001,
+    "serviceType": "ONLINE_SERVICE",
+    "governmentLevel": "CENTRAL",
+    "source": "PASSPORT_INDIA",
+    "status": "official-source-only",
+    "mappingStatus": "NOT_MAPPED",
+    "hasAcroForm": false,
+    "name": "Passport Application (Fresh/Re-issue)",
+    "categoryId": "identity",
+    "categoryName": "Passport",
+    "department": "Passport Seva / Ministry of External Affairs",
+    "ministry": "Ministry of External Affairs, Government of India",
+    "shortDescription": "Apply for a fresh Indian passport or re-issue an existing passport through the official Passport Seva portal.",
+    "purpose": "Indian citizens apply here for a fresh passport, re-issue of passport (e.g., expired, damaged, name change), or Police Clearance Certificate (PCC) through the official Government of India Passport Seva system.",
+    "eligibility": "All Indian citizens including minors. Applicant must be an Indian citizen and provide valid identity, address, and date of birth proof.",
+    "requiredDocuments": [
+      "Aadhaar Card or Voter ID (Identity Proof)",
+      "Aadhaar Card or Utility Bill (Address Proof)",
+      "Birth Certificate or School Leaving Certificate (Date of Birth Proof)",
+      "Recent Passport-size Photographs",
+      "Old Passport (for re-issue applications)",
+      "Proof of Name Change (if applicable — gazette notification or marriage certificate)"
+    ],
+    "fee": "Fresh Passport (36 pages): ₹1,500 | Fresh Passport (60 pages): ₹2,000 | Tatkal: Additional ₹2,000. Fees subject to change — verify on official portal.",
+    "whereToApply": "Online via passportindia.gov.in, then in-person appointment at nearest Passport Seva Kendra (PSK) or Post Office Passport Seva Kendra (POPSK).",
+    "instructions": [
+      "Register on the Passport Seva portal before filling the application.",
+      "Book an appointment online at your nearest PSK/POPSK after submitting the form.",
+      "Carry all original documents and self-attested photocopies to the appointment.",
+      "Aadhaar is mandatory as identity/address proof unless an exemption applies.",
+      "Police verification may be required depending on the type of application."
+    ],
+    "officialSourceUrl": "https://passportindia.gov.in",
+    "officialApplicationUrl": null,
+    "localPdfPath": null,
+    "lastVerified": "2026-10-01",
+    "keywords": [
+      "passport application", "fresh passport", "passport reissue", "passport renewal",
+      "passport seva", "ministry of external affairs", "PCC", "police clearance certificate",
+      "central government", "india"
+    ]
+  },
+  {
+    "id": 10002,
+    "serviceType": "ONLINE_SERVICE",
+    "governmentLevel": "CENTRAL",
+    "source": "INCOME_TAX_DEPT",
+    "status": "official-source-only",
+    "mappingStatus": "NOT_MAPPED",
+    "hasAcroForm": false,
+    "name": "ITR-1 SAHAJ — Income Tax Return (Salaried Individuals)",
+    "categoryId": "finance",
+    "categoryName": "Income Tax",
+    "department": "Income Tax Department",
+    "ministry": "Ministry of Finance, Government of India",
+    "shortDescription": "File your annual Income Tax Return online as a salaried individual or pensioner using ITR-1 (SAHAJ) on the official Income Tax e-filing portal.",
+    "purpose": "ITR-1 (SAHAJ) is the simplified Income Tax Return form for resident individuals with income from salary, one house property, other sources (interest, etc.), and total income up to ₹50 lakh.",
+    "eligibility": "Resident individuals with: (1) Income from salary or pension, (2) Income from one house property, (3) Income from other sources such as bank interest, (4) Total income up to ₹50 lakh. Not applicable to company directors, those with foreign income, or agricultural income above ₹5,000.",
+    "requiredDocuments": [
+      "Form 16 (issued by employer)",
+      "Form 26AS (Annual Tax Statement) from Income Tax Portal",
+      "Bank Account Statements / Passbook",
+      "PAN Card",
+      "Aadhaar Card (must be linked with PAN)",
+      "Details of deductions (80C, 80D, HRA etc.)",
+      "Interest certificates from banks"
+    ],
+    "fee": "No fee for filing Income Tax Returns. Late filing penalty may apply if filed after due date.",
+    "whereToApply": "Online at https://www.incometax.gov.in/iec/foportal/ (Income Tax e-filing portal).",
+    "instructions": [
+      "Due date for salaried individuals is typically July 31 of the assessment year.",
+      "Link Aadhaar with PAN before filing — mandatory as per Income Tax rules.",
+      "Download Form 16 from your employer and Form 26AS from the e-filing portal.",
+      "Verify ITR within 30 days of filing using Aadhaar OTP, net banking, or sending signed ITR-V by post.",
+      "Pre-filled returns are available on the portal — review carefully before submission."
+    ],
+    "officialSourceUrl": "https://www.incometax.gov.in/iec/foportal/",
+    "officialApplicationUrl": "https://www.incometax.gov.in/iec/foportal/downloads/income-tax-returns",
+    "localPdfPath": null,
+    "lastVerified": "2026-10-01",
+    "keywords": [
+      "ITR-1", "SAHAJ", "income tax return", "salary", "salaried individual",
+      "income tax filing", "e-filing", "tax return", "annual return",
+      "income tax department", "central government", "india"
+    ]
+  },
+  {
+    "id": 10003,
+    "serviceType": "ONLINE_SERVICE",
+    "governmentLevel": "CENTRAL",
+    "source": "INCOME_TAX_DEPT",
+    "status": "official-source-only",
+    "mappingStatus": "NOT_MAPPED",
+    "hasAcroForm": false,
+    "name": "PAN Card Application (Form 49A)",
+    "categoryId": "identity",
+    "categoryName": "PAN Card",
+    "department": "Income Tax Department",
+    "ministry": "Ministry of Finance, Government of India",
+    "shortDescription": "Apply for a new Permanent Account Number (PAN) card or request correction/re-print of an existing PAN card through the official Income Tax e-filing portal or Protean (NSDL).",
+    "purpose": "PAN (Permanent Account Number) is a unique 10-digit alphanumeric identifier issued by the Income Tax Department. It is mandatory for filing income tax returns, opening bank accounts, financial transactions above ₹50,000, and property purchases.",
+    "eligibility": "All Indian citizens, including minors. Foreign nationals and entities (companies, firms, HUFs) can also apply for PAN using Form 49AA.",
+    "requiredDocuments": [
+      "Identity Proof (Aadhaar Card, Voter ID, Driving License, or Passport)",
+      "Address Proof (Aadhaar Card, Utility Bill, Bank Statement, or Passport)",
+      "Date of Birth Proof (Birth Certificate, School Leaving Certificate, Aadhaar Card, or Passport)",
+      "Recent Passport-size Photographs (2 copies)",
+      "Aadhaar Card (for instant e-PAN)"
+    ],
+    "fee": "Physical PAN Card: ₹107 (within India) | ₹1,017 (outside India). Instant e-PAN via Aadhaar: Free.",
+    "whereToApply": "Online at https://www.incometax.gov.in/iec/foportal/ (Instant e-PAN via Aadhaar OTP), or through Protean (formerly NSDL) at https://protean-tinpan.com for physical PAN card.",
+    "instructions": [
+      "Aadhaar-based instant e-PAN is available free of cost from the Income Tax e-filing portal.",
+      "For a physical PAN card, apply through Protean (formerly NSDL) or UTIITSL.",
+      "Form 49A is for Indian citizens; Form 49AA is for foreign citizens/entities.",
+      "PAN must be linked with Aadhaar — linking is mandatory for all PAN holders.",
+      "Corrections in existing PAN (name, address, signature) can also be done online."
+    ],
+    "officialSourceUrl": "https://www.incometax.gov.in/iec/foportal/",
+    "officialApplicationUrl": null,
+    "localPdfPath": null,
+    "lastVerified": "2026-10-01",
+    "keywords": [
+      "PAN card", "permanent account number", "form 49A", "PAN application",
+      "e-PAN", "PAN correction", "income tax", "NSDL", "Protean",
+      "central government", "india"
+    ]
+  },
+  {
+    "id": 10004,
+    "serviceType": "ONLINE_SERVICE",
+    "governmentLevel": "CENTRAL",
+    "source": "GST_PORTAL",
+    "status": "official-source-only",
+    "mappingStatus": "NOT_MAPPED",
+    "hasAcroForm": false,
+    "name": "GST Registration (Form GST REG-01)",
+    "categoryId": "finance",
+    "categoryName": "GST",
+    "department": "Goods and Services Tax Network (GSTN)",
+    "ministry": "Ministry of Finance, Government of India",
+    "shortDescription": "Register your business for Goods and Services Tax (GST) online through the official GST portal. GST registration is mandatory for businesses with annual turnover above the threshold limit.",
+    "purpose": "GST Registration is required for businesses with annual turnover exceeding ₹40 lakh (goods) or ₹20 lakh (services), or those making inter-state supplies, e-commerce operators, and certain other categories of taxpayers.",
+    "eligibility": "Mandatory for: (1) Businesses with turnover above threshold (₹40 lakh for goods, ₹20 lakh for services), (2) Inter-state suppliers regardless of turnover, (3) E-commerce operators, (4) Persons required to pay tax under reverse charge mechanism.",
+    "requiredDocuments": [
+      "PAN Card of the Business / Proprietor",
+      "Aadhaar Card of the Proprietor / Partners / Directors",
+      "Proof of Business Registration (Partnership Deed / Certificate of Incorporation)",
+      "Bank Account Details (cancelled cheque or bank statement)",
+      "Address Proof of Principal Place of Business (electricity bill, rent agreement, property tax receipt)",
+      "Photographs of Proprietor / Partners / Directors",
+      "Authorization Letter (for authorized signatory)"
+    ],
+    "fee": "GST Registration is completely free. No application fee.",
+    "whereToApply": "Online at https://www.gst.gov.in (official GST portal). Application is processed online with ARN number issued instantly.",
+    "instructions": [
+      "Registration must be obtained within 30 days of becoming liable for GST registration.",
+      "Use Form GST REG-01 for normal registration; casual taxable persons use REG-01 Part B.",
+      "An ARN (Application Reference Number) is generated immediately after submission.",
+      "GST Officer may approve within 7 working days or raise queries within 3 working days.",
+      "Physical verification may be required in some cases before approval."
+    ],
+    "officialSourceUrl": "https://www.gst.gov.in",
+    "officialApplicationUrl": null,
+    "localPdfPath": null,
+    "lastVerified": "2026-10-01",
+    "keywords": [
+      "GST registration", "goods and services tax", "GSTIN", "GST REG-01",
+      "business registration", "GST portal", "GSTN",
+      "central government", "india"
+    ]
+  },
+  {
+    "id": 10005,
+    "serviceType": "ONLINE_SERVICE",
+    "governmentLevel": "CENTRAL",
+    "source": "EPFO",
+    "status": "official-source-only",
+    "mappingStatus": "NOT_MAPPED",
+    "hasAcroForm": false,
+    "name": "EPF Withdrawal / Claim (Form 19 / Form 10C / Form 31)",
+    "categoryId": "finance",
+    "categoryName": "EPFO / Provident Fund",
+    "department": "Employees' Provident Fund Organisation (EPFO)",
+    "ministry": "Ministry of Labour and Employment, Government of India",
+    "shortDescription": "Apply for EPF withdrawal, pension withdrawal, or advance from your Provident Fund account through the EPFO member portal using your UAN.",
+    "purpose": "EPFO members can withdraw or claim their Provident Fund (EPF) balance (Form 19), Pension withdrawal benefit (Form 10C), or take a partial advance from EPF (Form 31) for emergencies such as medical treatment, home purchase, education, or marriage.",
+    "eligibility": "EPF members with an active UAN (Universal Account Number). Eligibility for full withdrawal requires 2 months of unemployment. Partial withdrawal (advance) has specific eligibility criteria depending on purpose (education, medical, home loan, etc.).",
+    "requiredDocuments": [
+      "UAN (Universal Account Number) — must be activated",
+      "Aadhaar Card (linked with UAN via EPFO portal)",
+      "Bank Account linked with UAN (KYC verified)",
+      "PAN Card (mandatory for taxable withdrawals)",
+      "Cancelled cheque of bank account",
+      "Supporting documents depending on claim type (medical certificate, property documents, etc.)"
+    ],
+    "fee": "No fee for EPF withdrawal. Online claims are free.",
+    "whereToApply": "Online at https://unifiedportal-mem.epfindia.gov.in/memberinterface/ (EPFO Member e-Sewa portal) using your UAN and password.",
+    "instructions": [
+      "Activate your UAN at the EPFO member portal before filing any claim.",
+      "Complete KYC (Aadhaar, PAN, Bank account) on the EPFO portal for faster processing.",
+      "Online claims are settled within 10–20 working days if KYC is complete.",
+      "For Form 19 (full EPF withdrawal): must have been unemployed for at least 2 months.",
+      "Tax is deducted (TDS at 10% with PAN, 30% without PAN) if EPF is withdrawn before 5 years of service."
+    ],
+    "officialSourceUrl": "https://www.epfindia.gov.in",
+    "officialApplicationUrl": "https://unifiedportal-mem.epfindia.gov.in/memberinterface/",
+    "localPdfPath": null,
+    "lastVerified": "2026-10-01",
+    "keywords": [
+      "EPF withdrawal", "provident fund", "EPFO", "Form 19", "Form 10C", "Form 31",
+      "UAN", "pension withdrawal", "EPF advance", "PF balance",
+      "central government", "india"
+    ]
+  },
+  {
+    "id": 10006,
+    "serviceType": "ONLINE_SERVICE",
+    "governmentLevel": "CENTRAL",
+    "source": "UIDAI",
+    "status": "official-source-only",
+    "mappingStatus": "NOT_MAPPED",
+    "hasAcroForm": false,
+    "name": "Aadhaar Enrolment / Update (Name, Address, Mobile)",
+    "categoryId": "identity",
+    "categoryName": "Aadhaar",
+    "department": "Unique Identification Authority of India (UIDAI)",
+    "ministry": "Ministry of Electronics and Information Technology, Government of India",
+    "shortDescription": "Enrol for a new Aadhaar card or update existing Aadhaar details (name, address, date of birth, mobile number, email) through UIDAI's official portal or nearest Aadhaar Enrolment Centre.",
+    "purpose": "Aadhaar is the world's largest biometric identity system. Citizens use this service to enrol for a new 12-digit Aadhaar number for the first time, or to update existing details such as name, address, date of birth, or mobile number in their Aadhaar record.",
+    "eligibility": "All residents of India, including children (Baal Aadhaar for children aged 0–5 years). Enrolment is free and voluntary but serves as mandatory identity/address proof across government services.",
+    "requiredDocuments": [
+      "Identity Proof (Voter ID, Passport, Driving License, PAN Card, or any valid ID from UIDAI-approved list)",
+      "Address Proof (Bank Statement, Utility Bill, Voter ID, Passport, Ration Card, or any approved address document)",
+      "Date of Birth Proof (Birth Certificate, School Leaving Certificate, PAN Card, or Passport)",
+      "For Baal Aadhaar (children 0–5): Birth certificate + parent's Aadhaar",
+      "For mobile update: Current mobile number (for OTP verification)"
+    ],
+    "fee": "New Aadhaar Enrolment: Free. Aadhaar Update (online via myAadhaar portal): ₹50 per update request. Updates at Aadhaar Enrolment Centre: Fees may apply as notified.",
+    "whereToApply": "Online updates at https://uidai.gov.in/my-aadhaar (address and other details). For new enrolment or biometric update: visit nearest Aadhaar Enrolment Centre (find on uidai.gov.in).",
+    "instructions": [
+      "New enrolment requires a physical visit to an authorised Aadhaar Enrolment Centre.",
+      "Address updates can be done online via myAadhaar portal using Aadhaar OTP verification.",
+      "Mobile number must be registered with Aadhaar to use online self-service update.",
+      "Biometric update (fingerprint / iris) can only be done at an enrolment centre.",
+      "Download your e-Aadhaar (PDF) free from uidai.gov.in after enrolment or update."
+    ],
+    "officialSourceUrl": "https://uidai.gov.in",
+    "officialApplicationUrl": "https://uidai.gov.in/my-aadhaar",
+    "localPdfPath": null,
+    "lastVerified": "2026-10-01",
+    "keywords": [
+      "Aadhaar", "Aadhaar enrolment", "Aadhaar update", "UIDAI", "unique identification",
+      "Baal Aadhaar", "address update", "mobile number update", "e-Aadhaar",
+      "central government", "india"
+    ]
+  },
+  {
+    "id": 10007,
+    "serviceType": "ONLINE_SERVICE",
+    "governmentLevel": "CENTRAL",
+    "source": "ECI",
+    "status": "official-source-only",
+    "mappingStatus": "NOT_MAPPED",
+    "hasAcroForm": false,
+    "name": "Voter ID Registration (Form 6 — New Voter Enrolment)",
+    "categoryId": "identity",
+    "categoryName": "Electoral",
+    "department": "Election Commission of India (ECI)",
+    "ministry": "Election Commission of India",
+    "shortDescription": "Register as a voter and obtain your Voter ID card (EPIC) by submitting Form 6 through the official National Voters' Service Portal (NVSP) or Voter Helpline App.",
+    "purpose": "Form 6 is the application form for the inclusion of name in the Electoral Roll for first-time voters, or for voters who have moved to a new constituency. It enables citizens aged 18 and above to register as voters and receive their Voter ID (EPIC).",
+    "eligibility": "Indian citizens aged 18 years or above, ordinarily resident in India. NRIs who are Indian citizens and not absent from India for more than a continuous period of 6 months are also eligible.",
+    "requiredDocuments": [
+      "Age Proof (Birth Certificate, Class 10 Marksheet, Aadhaar Card with date of birth, or Passport)",
+      "Address Proof (Aadhaar Card, Bank Passbook, Utility Bill, Rent Agreement, or Passport)",
+      "Photograph (recent passport-size)",
+      "Aadhaar Card (if available — for linkage with voter ID)"
+    ],
+    "fee": "Voter ID Registration is completely free.",
+    "whereToApply": "Online at https://voters.eci.gov.in (National Voters' Service Portal — NVSP). Alternatively, submit Form 6 at the office of your local Electoral Registration Officer (ERO) / Booth Level Officer (BLO).",
+    "instructions": [
+      "You must be 18 years of age or above on January 1 of the year of application.",
+      "Online registration is available at voters.eci.gov.in — create an account and fill Form 6.",
+      "After submission, the Booth Level Officer (BLO) will verify your address physically.",
+      "Voter ID (EPIC) is typically issued within 30 days of verification.",
+      "Link your Aadhaar to your Voter ID on the NVSP portal to prevent duplicate entries.",
+      "Form 6A is for NRI voter registration; Form 8 is for correction of entries."
+    ],
+    "officialSourceUrl": "https://voters.eci.gov.in",
+    "officialApplicationUrl": "https://eci.gov.in/docUpload/forms/1731045225_Form6.pdf",
+    "localPdfPath": null,
+    "lastVerified": "2026-10-01",
+    "keywords": [
+      "voter ID", "EPIC", "voter registration", "Form 6", "electoral roll",
+      "election commission", "NVSP", "new voter", "first time voter",
+      "central government", "india"
+    ]
+  }
+];
+
+// Merge all forms for the application
+export const allForms = [...forms, ...centralGovernmentForms];
+

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categories } from '../data/categories';
-import { forms } from '../data/formData';
+import { allForms as forms } from '../data/formData';
 
 const FindForm = () => {
   const navigate = useNavigate();
