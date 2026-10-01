@@ -312,15 +312,15 @@ Form Name: {form_name}
 Department: {department}
 Target Language: {language}
 
-Extracted Text from the Official Government Form PDF:
+Complete Extracted Text from ALL Pages of the Official Government Form PDF:
 \"\"\"
-{pdf_text[:3500]}
+{pdf_text}
 \"\"\"
 
 Task:
-Analyze the form text above and extract:
+Analyze the document text above across ALL sections and pages, and extract:
 1. "requiredDocuments": A list of specific required supporting documents mentioned or requested in this form (e.g., Aadhaar Card, Ration Card, Bank Passbook, Salary Certificate, Death Certificate, etc.). If no specific supporting documents are mentioned or required in the form, return [].
-2. "fields": ALL actual fields/questions that the applicant must fill in this specific form.
+2. "fields": EVERY SINGLE input field, sub-field, option, checkbox, date, address component, document selection, relative details, declaration detail, place/date, and signature line that an applicant must fill out in this form.
 
 Return ONLY a valid JSON object matching this exact schema:
 {{
@@ -337,11 +337,13 @@ Return ONLY a valid JSON object matching this exact schema:
   ]
 }}
 
-Rules:
+Rules for Comprehensive Extraction:
+- Do NOT stop after 5 or 6 fields. Extract ALL meaningful input fields present in the text across ALL sections (Personal details, Relative details, Contact details, Aadhaar details, Gender, DoB details, Residence/Address details, Disability details, Family member details, Declaration details, Place/Date, Signature, etc.).
+- Preserve the form's actual field names and structure.
 - Write ALL required document names, whatItMeans, and whatToEnter strictly in {language}.
 - Do NOT append English translations or text in brackets when {language} is Telugu or Hindi. Write in {language} only.
-- For requiredDocuments: Include ONLY documents that are actually required or relevant to this specific form. If requirements cannot be reliably determined from the text or service context, return []. Do NOT invent generic filler documents.
-- For fields: Include ONLY fields present or referenced in the form.
+- For requiredDocuments: Include ONLY documents that are actually required or relevant to this specific form. If requirements cannot be reliably determined, return []. Do NOT invent generic filler documents.
+- Include ONLY fields present or referenced in the form. Do NOT invent fields not present in the document.
 - Return ONLY valid JSON, no markdown formatting outside JSON.
 """
     else:
@@ -355,7 +357,7 @@ Target Language: {language}
 Task:
 Based strictly on the official service purpose and department details for '{form_name}', identify:
 1. "requiredDocuments": The actual required supporting documents specific to this government form/service (e.g. for Income Certificate: Ration Card/Salary Slip; for Crop Insurance: Land Passbook/Bank Account; for Health Card Pensioner: PPO Copy/Aadhaar Card). If specific requirements cannot be reliably determined for this form, return [].
-2. "fields": The standard required fields specific to '{form_name}'.
+2. "fields": ALL standard required input fields, sub-fields, address details, identity details, eligibility/declaration details, date/place/signature fields for '{form_name}'. Extract a comprehensive, complete field list without truncating or artificially limiting the list to a few items.
 
 Return ONLY a valid JSON object matching this exact schema:
 {{
@@ -373,6 +375,7 @@ Return ONLY a valid JSON object matching this exact schema:
 }}
 
 Rules:
+- Do NOT artificially limit the list to 5 or 6 fields. Provide ALL relevant fields for '{form_name}'.
 - Write ALL required document names, whatItMeans, and whatToEnter strictly in {language}.
 - Do NOT append English translations or text in brackets when {language} is Telugu or Hindi. Write in {language} only.
 - Include ONLY documents and fields specific to {form_name}.
@@ -381,9 +384,15 @@ Rules:
 """
 
     try:
+        from google.genai import types as genai_types
+        config = genai_types.GenerateContentConfig(
+            temperature=0.1,
+            max_output_tokens=8192,
+        )
         response = _client.models.generate_content(
             model=GEMINI_MODEL,
             contents=prompt,
+            config=config,
         )
         raw_text = (response.text or "").strip()
         if raw_text.startswith("```"):

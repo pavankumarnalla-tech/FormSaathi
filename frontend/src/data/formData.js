@@ -6769,7 +6769,7 @@ export const centralGovernmentForms = [
     ],
     "officialSourceUrl": "https://voters.eci.gov.in",
     "officialApplicationUrl": "https://eci.gov.in/docUpload/forms/1731045225_Form6.pdf",
-    "localPdfPath": null,
+    "localPdfPath": "form6.pdf",
     "lastVerified": "2026-10-01",
     "keywords": [
       "voter ID", "EPIC", "voter registration", "Form 6", "electoral roll",

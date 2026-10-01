@@ -158,13 +158,19 @@ def get_form_dynamic_guidance(req: GuidanceRequest):
     pdf_text = ""
     if req.localPdfPath:
         safe_filename = os.path.basename(req.localPdfPath)
-        pdf_file = os.path.join(OFFICIAL_FORMS_DIR, safe_filename)
-        if os.path.exists(pdf_file):
+        forms_root = os.path.join(os.path.dirname(__file__), "..", "official_forms")
+        pdf_file = None
+        for root_dir, _, files in os.walk(forms_root):
+            if safe_filename in files:
+                pdf_file = os.path.join(root_dir, safe_filename)
+                break
+
+        if pdf_file and os.path.exists(pdf_file):
             try:
                 from pypdf import PdfReader
                 reader = PdfReader(pdf_file)
                 extracted_pages = []
-                for p in reader.pages[:3]:
+                for p in reader.pages:
                     txt = p.extract_text()
                     if txt:
                         extracted_pages.append(txt)
