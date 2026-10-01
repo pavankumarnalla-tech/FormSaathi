@@ -7,7 +7,7 @@ const FindForm = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedLevel, setSelectedLevel] = useState('ALL');     // ALL | NATIONAL | TELANGANA
+  const [selectedLevel, setSelectedLevel] = useState('ALL');     // ALL | CENTRAL | TELANGANA
   const [selectedType, setSelectedType] = useState('ALL');       // ALL | FORM | ONLINE_SERVICE
 
   // ── Filter logic ─────────────────────────────────────────────────────────
@@ -109,9 +109,9 @@ const FindForm = () => {
             )}
 
             <span className={`badge rounded-pill px-3 py-2 small ${
-              form.governmentLevel === 'NATIONAL' ? 'bg-info text-dark' : 'bg-warning text-dark'
+              form.governmentLevel === 'CENTRAL' ? 'bg-info text-dark' : 'bg-warning text-dark'
             }`}>
-              {form.governmentLevel === 'NATIONAL' ? '🇮🇳 National' : 'TS Telangana'}
+              {form.governmentLevel === 'CENTRAL' ? '🇮🇳 National' : 'TS Telangana'}
             </span>
           </div>
 
@@ -196,13 +196,13 @@ const FindForm = () => {
             {/* Government Level */}
             <div className="d-flex gap-2 align-items-center">
               <span className="text-muted small fw-bold">Level:</span>
-              {['ALL', 'NATIONAL', 'TELANGANA'].map(level => (
+              {['ALL', 'CENTRAL', 'TELANGANA'].map(level => (
                 <button
                   key={level}
                   className={`btn btn-sm rounded-pill px-3 ${selectedLevel === level ? 'btn-primary-brand text-white' : 'btn-outline-secondary'}`}
                   onClick={() => setSelectedLevel(level)}
                 >
-                  {level === 'ALL' ? 'All' : level === 'NATIONAL' ? '🇮🇳 National' : 'TS Telangana'}
+                  {level === 'ALL' ? 'All' : level === 'CENTRAL' ? '🇮🇳 National' : 'TS Telangana'}
                 </button>
               ))}
             </div>
@@ -263,7 +263,7 @@ const FindForm = () => {
             {selectedCategory
               ? `${categories.find(c => c.id === selectedCategory)?.name} Forms & Services`
               : selectedLevel !== 'ALL'
-              ? `${selectedLevel === 'NATIONAL' ? 'National' : 'Telangana'} Forms & Services`
+              ? `${selectedLevel === 'CENTRAL' ? 'National' : 'Telangana'} Forms & Services`
               : 'All Forms & Services'}
           </h4>
           {searchTerm && (
