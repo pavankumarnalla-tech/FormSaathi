@@ -6,7 +6,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional
-from services.ai_service import analyze_form, generate_dynamic_field_guidance
+from services.ai_service import analyze_form, generate_dynamic_field_guidance, generate_dynamic_form_guidance_and_documents
 
 router = APIRouter()
 
@@ -131,33 +131,28 @@ class GuidanceRequest(BaseModel):
 @router.post("/guidance")
 def get_form_dynamic_guidance(req: GuidanceRequest):
     """
-    Returns form-specific dynamic field guidance (name, whatItMeans, whatToEnter) in requested language.
-    Checks guidance_cache/{formId}_{language}.json first. If not cached, analyzes PDF/metadata using Gemini,
+    Returns form-specific dynamic field guidance (name, whatItMeans, whatToEnter) and required documents in requested language.
+    Checks guidance_cache/{formId}_{language}_v2.json first. If not cached, analyzes PDF/metadata using Gemini,
     caches the result on disk, and returns it.
     """
     lang_name = req.language or "English"
     lang_key = lang_name.lower().replace(" ", "_")
-    cache_path = os.path.join(GUIDANCE_CACHE_DIR, f"{req.formId}_{lang_key}.json")
+    cache_path = os.path.join(GUIDANCE_CACHE_DIR, f"{req.formId}_{lang_key}_v2.json")
 
     # 1. Check disk cache
     if os.path.exists(cache_path):
         try:
             with open(cache_path, "r", encoding="utf-8") as f:
                 cached_data = json.load(f)
-            return {"success": True, "cached": True, "fields": cached_data}
+            if isinstance(cached_data, dict):
+                return {
+                    "success": True,
+                    "cached": True,
+                    "fields": cached_data.get("fields", []),
+                    "requiredDocuments": cached_data.get("requiredDocuments", [])
+                }
         except Exception as e:
             print(f"Failed to read cache for form {req.formId}: {e}")
-
-    # Fallback check for legacy cache format if language is English
-    if lang_key == "english":
-        legacy_cache = os.path.join(GUIDANCE_CACHE_DIR, f"{req.formId}.json")
-        if os.path.exists(legacy_cache):
-            try:
-                with open(legacy_cache, "r", encoding="utf-8") as f:
-                    cached_data = json.load(f)
-                return {"success": True, "cached": True, "fields": cached_data}
-            except Exception as e:
-                print(f"Failed to read legacy cache for form {req.formId}: {e}")
 
     # 2. Extract PDF text if local PDF exists
     pdf_text = ""
@@ -177,10 +172,10 @@ def get_form_dynamic_guidance(req: GuidanceRequest):
             except Exception as e:
                 print(f"Error extracting PDF text for guidance: {e}")
 
-    # 3. Call Gemini for dynamic guidance in requested language
-    fields = []
+    # 3. Call Gemini for dynamic guidance and required documents in requested language
+    guidance_data = {"fields": [], "requiredDocuments": []}
     try:
-        fields = generate_dynamic_field_guidance(
+        guidance_data = generate_dynamic_form_guidance_and_documents(
             form_name=req.formName,
             department=req.department or "",
             purpose=req.purpose or "",
@@ -188,14 +183,23 @@ def get_form_dynamic_guidance(req: GuidanceRequest):
             language=lang_name
         )
     except Exception as e:
-        print(f"Error generating dynamic field guidance for form {req.formId}: {e}")
+        print(f"Error generating dynamic guidance for form {req.formId}: {e}")
 
-    # 4. Save to disk cache if fields found
-    if fields:
+    fields = guidance_data.get("fields", [])
+    required_documents = guidance_data.get("requiredDocuments", [])
+
+    # 4. Save to disk cache if fields or required documents found
+    if fields or required_documents:
         try:
             with open(cache_path, "w", encoding="utf-8") as f:
-                json.dump(fields, f, indent=2, ensure_ascii=False)
+                json.dump({"fields": fields, "requiredDocuments": required_documents}, f, indent=2, ensure_ascii=False)
         except Exception as e:
             print(f"Failed to write cache for form {req.formId}: {e}")
 
-    return {"success": True, "cached": False, "fields": fields}
+    return {
+        "success": True,
+        "cached": False,
+        "fields": fields,
+        "requiredDocuments": required_documents
+    }
+

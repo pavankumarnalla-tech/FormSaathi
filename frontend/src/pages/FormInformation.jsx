@@ -14,6 +14,7 @@ const FormInformation = () => {
   const [aiField, setAiField] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
   const [fieldsGuidance, setFieldsGuidance] = useState([]);
+  const [requiredDocuments, setRequiredDocuments] = useState([]);
   const [loadingGuidance, setLoadingGuidance] = useState(true);
   const getLanguageName = (code) => {
     if (code === 'te' || code === 'Telugu') return 'Telugu';
@@ -37,7 +38,7 @@ const FormInformation = () => {
     }
   }, [form]);
 
-  // Fetch dynamic form guidance from backend (ISSUE 2 FIX)
+  // Fetch dynamic form guidance from backend
   useEffect(() => {
     if (!form) return;
     let isMounted = true;
@@ -54,12 +55,16 @@ const FormInformation = () => {
           language: language,
         }, { timeout: 15000 });
 
-        if (isMounted && res.data && res.data.fields) {
-          setFieldsGuidance(res.data.fields);
+        if (isMounted && res.data) {
+          setFieldsGuidance(res.data.fields || []);
+          setRequiredDocuments(res.data.requiredDocuments || []);
         }
       } catch (err) {
         console.error('Failed to fetch guidance:', err);
-        if (isMounted) setFieldsGuidance([]);
+        if (isMounted) {
+          setFieldsGuidance([]);
+          setRequiredDocuments([]);
+        }
       } finally {
         if (isMounted) setLoadingGuidance(false);
       }
@@ -197,9 +202,14 @@ const FormInformation = () => {
             <h5 className="fw-bold text-primary-brand border-bottom pb-3 mb-4">
               <i className="bi bi-folder-check me-2"></i>What You Need (Required Documents)
             </h5>
-            {form.requiredDocuments && form.requiredDocuments.length > 0 ? (
+            {loadingGuidance ? (
+              <div className="py-2">
+                <div className="spinner-border spinner-border-sm text-primary-brand me-2" role="status"></div>
+                <span className="text-muted small">Loading required documents...</span>
+              </div>
+            ) : requiredDocuments && requiredDocuments.length > 0 ? (
               <ul className="list-unstyled mb-0">
-                {form.requiredDocuments.map((doc, idx) => (
+                {requiredDocuments.map((doc, idx) => (
                   <li key={idx} className="mb-3 d-flex align-items-start">
                     <i className="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
                     <span className="text-dark fw-medium">{doc}</span>
@@ -208,7 +218,7 @@ const FormInformation = () => {
               </ul>
             ) : (
               <p className="text-muted fst-italic mb-0">
-                <i className="bi bi-info-circle me-2"></i>Specific document checklist not listed in official summary. Please check the official form.
+                <i className="bi bi-info-circle me-2"></i>Required document information is unavailable for this form.
               </p>
             )}
           </div>
