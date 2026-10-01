@@ -15,11 +15,11 @@ const Welcome = () => {
                 Your AI Saathi for Official Forms
               </span>
               <h1 className="display-4 fw-bold text-dark mb-4">
-                Understand Forms.<br />
-                <span className="text-primary-brand">Fill Them With Confidence.</span>
+                Discover Forms.<br />
+                <span className="text-primary-brand">Understand Them Easily.</span>
               </h1>
               <p className="lead text-muted-brand mb-5">
-                Form Saathi helps you understand complicated official forms, provides simple guidance, and helps you prepare them correctly.
+                Form Saathi helps you discover government forms, understand their purpose and requirements, and provides simple AI explanations.
               </p>
               <div className="d-flex flex-column flex-sm-row gap-3">
                 <button 
@@ -41,23 +41,23 @@ const Welcome = () => {
               <div className="bg-light p-4 rounded-4 shadow-sm position-relative">
                 <div className="d-flex flex-column gap-3 align-items-center">
                   <div className="bg-white p-3 rounded-3 shadow-sm border w-75 d-flex align-items-center justify-content-between">
-                    <span className="text-muted fw-bold">Official Form</span>
+                    <span className="text-muted fw-bold">Government Form</span>
                     <i className="bi bi-file-earmark-pdf fs-4 text-secondary"></i>
                   </div>
                   <i className="bi bi-arrow-down fs-4 text-primary-brand"></i>
                   <div className="bg-primary-brand p-3 rounded-3 shadow-sm border w-75 d-flex align-items-center justify-content-between text-white">
-                    <span className="fw-bold">AI Assistance</span>
+                    <span className="fw-bold">AI Explanation</span>
                     <i className="bi bi-robot fs-4"></i>
                   </div>
                   <i className="bi bi-arrow-down fs-4 text-primary-brand"></i>
                   <div className="bg-white p-3 rounded-3 shadow-sm border w-75 d-flex align-items-center justify-content-between border-primary">
-                    <span className="text-primary-brand fw-bold">Simple Form</span>
-                    <i className="bi bi-ui-checks fs-4 text-primary-brand"></i>
+                    <span className="text-primary-brand fw-bold">Understand Fields & Requirements</span>
+                    <i className="bi bi-list-check fs-4 text-primary-brand"></i>
                   </div>
                   <i className="bi bi-arrow-down fs-4 text-success"></i>
                   <div className="bg-white p-3 rounded-3 shadow-sm border w-75 d-flex align-items-center justify-content-between border-success">
-                    <span className="text-success fw-bold">Completed Form</span>
-                    <i className="bi bi-check-circle-fill fs-4 text-success"></i>
+                    <span className="text-success fw-bold">Official Form</span>
+                    <i className="bi bi-file-earmark-check-fill fs-4 text-success"></i>
                   </div>
                 </div>
               </div>
